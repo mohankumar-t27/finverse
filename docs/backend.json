@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "Represents a user of the application.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "budget": {
+      "title": "Budget",
+      "description": "Represents a monthly budget for a specific category.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "The category name for the budget."
+        },
+        "budget": {
+          "type": "number",
+          "description": "The allocated budget amount."
+        }
+      },
+      "required": ["category", "budget"]
+    },
+    "expense": {
+      "title": "Expense",
+      "description": "Represents a single expense entry.",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "description": "The amount of the expense."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the expense."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the expense."
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the expense was recorded."
+        }
+      },
+      "required": ["amount", "category", "description", "date"]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/users/{userId}/months/{monthId}/budgets/{budget_id}": {
+      "schema": {
+        "$ref": "#/entities/budget"
+      },
+      "description": "Stores the budgets for a specific user and month."
+    },
+    "/users/{userId}/months/{monthId}/expenses/{expense_id}": {
+      "schema": {
+        "$ref": "#/entities/expense"
+      },
+      "description": "Stores the expenses for a specific user and month."
+    }
+  }
+}
