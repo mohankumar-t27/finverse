@@ -11,29 +11,30 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 const initialBudgets: Budget[] = [
-  { category: 'Food & Dining', budget: 400 },
-  { category: 'Transportation', budget: 150 },
-  { category: 'Housing & Utilities', budget: 1200 },
-  { category: 'Entertainment', budget: 100 },
-  { category: 'Shopping', budget: 200 },
-  { category: 'Health & Wellness', budget: 80 },
+  { category: 'Food & Dining', budget: 0 },
+  { category: 'Transportation', budget: 0 },
+  { category: 'Housing & Utilities', budget: 0 },
+  { category: 'Entertainment', budget: 0 },
+  { category: 'Shopping', budget: 0 },
+  { category: 'Health & Wellness', budget: 0 },
 ];
 
-const initialExpenses: Expense[] = [
-  { id: '1', amount: 55.3, category: 'Food & Dining', description: 'Groceries', date: new Date(new Date().setDate(2)).toISOString() },
-  { id: '2', amount: 25, category: 'Transportation', description: 'Gas', date: new Date(new Date().setDate(3)).toISOString() },
-  { id: '3', amount: 1100, category: 'Housing & Utilities', description: 'Rent', date: new Date(new Date().setDate(1)).toISOString() },
-  { id: '4', amount: 45, category: 'Entertainment', description: 'Movie tickets', date: new Date(new Date().setDate(5)).toISOString() },
-  { id: '5', amount: 120, category: 'Shopping', description: 'New shoes', date: new Date(new Date().setDate(6)).toISOString() },
-  { id: '6', amount: 22.5, category: 'Food & Dining', description: 'Lunch', date: new Date(new Date().setDate(7)).toISOString() },
-  { id: '7', amount: 50, category: 'Health & Wellness', description: 'Pharmacy', date: new Date(new Date().setDate(8)).toISOString() },
-];
+const initialExpenses: Expense[] = [];
 
 const getInitialData = (): AppData => {
   if (typeof window === 'undefined') return {};
   const storedData = localStorage.getItem('expenseTrackerData');
   if (storedData) {
-    return JSON.parse(storedData);
+    try {
+      const parsedData = JSON.parse(storedData);
+      // Basic validation to ensure it's not malformed
+      if (typeof parsedData === 'object' && parsedData !== null) {
+        return parsedData;
+      }
+    } catch (e) {
+      console.error("Failed to parse data from localStorage", e);
+      // If parsing fails, return a clean slate
+    }
   }
   const currentMonthKey = format(new Date(), 'yyyy-MM');
   return {
@@ -83,13 +84,18 @@ export default function Dashboard() {
 
     toast({
       title: 'Expense Added',
-      description: `${newExpense.description} for ${newExpense.amount} in ${newExpense.category}.`,
+      description: `${newExpense.description} for Rs ${newExpense.amount} in ${newExpense.category}.`,
     });
 
     const categoryBudget = budgets.find(b => b.category === newExpense.category);
-    const categorySpent = expenses.filter(e => e.category === newExpense.category).reduce((sum, e) => sum + e.amount, 0) + newExpense.amount;
+    if (!categoryBudget) return;
 
-    if (categoryBudget && categorySpent > categoryBudget.budget) {
+    const categorySpent = (prevData[currentMonthKey]?.expenses || [])
+        .filter(e => e.category === newExpense.category)
+        .reduce((sum, e) => sum + e.amount, 0) + newExpense.amount;
+
+
+    if (categoryBudget && categoryBudget.budget > 0 && categorySpent > categoryBudget.budget) {
       toast({
         variant: "destructive",
         title: "Budget Exceeded",
@@ -119,11 +125,14 @@ export default function Dashboard() {
     setSelectedDate(date);
     const newMonthKey = format(date, 'yyyy-MM');
     if (!data[newMonthKey]) {
-        // If no data for new month, create it with default budgets
+        // If no data for new month, create it with default categories but zero budget
+        const previousMonthKey = format(subMonths(date, 1), 'yyyy-MM');
+        const previousBudgets = data[previousMonthKey]?.budgets || initialBudgets;
+        
         setData(prevData => ({
             ...prevData,
             [newMonthKey]: {
-                budgets: initialBudgets, // Or copy from previous month
+                budgets: previousBudgets.map(b => ({...b})), // Carry over categories & budgets
                 expenses: [],
             }
         }));
@@ -134,7 +143,6 @@ export default function Dashboard() {
     <div className="flex flex-col min-h-screen">
       <Header 
         budgets={budgets} 
-        expenses={expenses} 
         onAddExpense={handleAddExpense} 
         onUpdateBudgets={handleUpdateBudgets}
         selectedDate={selectedDate}

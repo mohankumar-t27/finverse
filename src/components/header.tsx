@@ -3,12 +3,13 @@
 import { IndianRupee } from 'lucide-react';
 import AddExpenseDialog from '@/components/add-expense-dialog';
 import BudgetSetupDialog from '@/components/budget-setup-dialog';
-import type { Budget, Expense } from '@/lib/types';
+import type { Budget } from '@/lib/types';
 import MonthSelector from './month-selector';
+import type { Expense } from '@/lib/types';
+
 
 interface HeaderProps {
   budgets: Budget[];
-  expenses: Expense[];
   onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
   onUpdateBudgets: (budgets: Budget[]) => void;
   selectedDate: Date;
