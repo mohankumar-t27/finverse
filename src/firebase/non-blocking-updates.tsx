@@ -1,32 +1,56 @@
-// NOTE: This file is a placeholder to resolve module not found errors.
-// It will be properly implemented in the next steps.
+'use client';
+
 import {
     DocumentReference,
     CollectionReference,
     addDoc,
     setDoc,
     deleteDoc,
-    SetOptions
+    SetOptions,
+    WithFieldValue
 } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 export function addDocumentNonBlocking<T>(
     collectionRef: CollectionReference<T>,
-    data: T
+    data: WithFieldValue<T>
 ) {
-    return addDoc(collectionRef, data);
+    addDoc(collectionRef, data)
+        .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: collectionRef.path,
+                operation: 'create',
+                requestResourceData: data,
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+        });
 }
 
 export function setDocumentNonBlocking<T>(
     docRef: DocumentReference<T>,
-    data: T,
+    data: WithFieldValue<T>,
     options?: SetOptions
 ) {
-    if (options) {
-        return setDoc(docRef, data, options);
-    }
-    return setDoc(docRef, data);
+    const operation = options && 'merge' in options ? 'update' : 'create';
+    setDoc(docRef, data, options || {})
+        .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: docRef.path,
+                operation: operation,
+                requestResourceData: data,
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+        });
 }
 
 export function deleteDocumentNonBlocking(docRef: DocumentReference) {
-    return deleteDoc(docRef);
+    deleteDoc(docRef)
+        .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: docRef.path,
+                operation: 'delete',
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
+        });
 }
