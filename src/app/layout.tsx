@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import FirebaseProvider from '@/firebase/provider';
 
 export const metadata: Metadata = {
-  title: 'MokSpends',
+  title: 'MokiSpends',
   description: 'Track and manage your monthly expenses.',
 };
 

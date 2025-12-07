@@ -21,7 +21,7 @@ export default function Header({ budgets, onAddExpense, onUpdateBudgets, selecte
         <div className="flex items-center gap-2">
             <IndianRupee className="w-6 h-6 text-primary" />
             <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-headline">
-            MokSpends
+            MokiSpends
             </h1>
         </div>
         <div className="md:hidden">
