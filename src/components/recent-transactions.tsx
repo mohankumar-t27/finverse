@@ -19,26 +19,28 @@ import type { Expense } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { ScrollArea } from './ui/scroll-area';
 import { getCategoryIcon } from '@/lib/icons';
+import { format } from 'date-fns';
 
 interface RecentTransactionsProps {
   expenses: Expense[];
 }
 
 export default function RecentTransactions({ expenses }: RecentTransactionsProps) {
-  const recentExpenses = expenses.slice(0, 10);
+  const recentExpenses = expenses.slice(0, 50);
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>Your last 10 expenses.</CardDescription>
+        <CardTitle>Transactions</CardTitle>
+        <CardDescription>Your recent expenses for the selected month.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[300px]">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Description</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
@@ -58,12 +60,13 @@ export default function RecentTransactions({ expenses }: RecentTransactionsProps
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell>{format(new Date(expense.date), 'MMM dd')}</TableCell>
                     <TableCell className="text-right">{formatCurrency(expense.amount)}</TableCell>
                   </TableRow>
                 )
               }) : (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center h-24">No expenses added yet.</TableCell>
+                  <TableCell colSpan={3} className="text-center h-24">No expenses added for this month.</TableCell>
                 </TableRow>
               )}
             </TableBody>

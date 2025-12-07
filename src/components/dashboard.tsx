@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import type { Budget, Expense } from '@/lib/types';
+import { useState, useMemo, useEffect } from 'react';
+import type { Budget, Expense, AppData, MonthlyData } from '@/lib/types';
 import Header from '@/components/header';
 import OverviewCards from '@/components/overview-cards';
 import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 const initialBudgets: Budget[] = [
   { category: 'Food & Dining', budget: 400 },
@@ -28,11 +29,37 @@ const initialExpenses: Expense[] = [
   { id: '7', amount: 50, category: 'Health & Wellness', description: 'Pharmacy', date: new Date(new Date().setDate(8)).toISOString() },
 ];
 
+const getInitialData = (): AppData => {
+  if (typeof window === 'undefined') return {};
+  const storedData = localStorage.getItem('expenseTrackerData');
+  if (storedData) {
+    return JSON.parse(storedData);
+  }
+  const currentMonthKey = format(new Date(), 'yyyy-MM');
+  return {
+    [currentMonthKey]: {
+      budgets: initialBudgets,
+      expenses: initialExpenses,
+    },
+  };
+};
 
 export default function Dashboard() {
-  const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
+  const [data, setData] = useState<AppData>(getInitialData);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const { toast } = useToast();
+  
+  const currentMonthKey = format(selectedDate, 'yyyy-MM');
+
+  useEffect(() => {
+    localStorage.setItem('expenseTrackerData', JSON.stringify(data));
+  }, [data]);
+  
+  const monthlyData: MonthlyData = useMemo(() => {
+    return data[currentMonthKey] || { budgets: initialBudgets.map(b => ({...b, budget: 0})), expenses: [] };
+  }, [data, currentMonthKey]);
+
+  const { budgets, expenses } = monthlyData;
 
   const totalBudget = useMemo(() => budgets.reduce((sum, b) => sum + b.budget, 0), [budgets]);
   const totalSpent = useMemo(() => expenses.reduce((sum, e) => sum + e.amount, 0), [expenses]);
@@ -43,7 +70,17 @@ export default function Dashboard() {
       id: new Date().getTime().toString(),
       date: new Date().toISOString(),
     };
-    setExpenses(prev => [expenseToAdd, ...prev]);
+    
+    setData(prevData => {
+        const newData = {...prevData};
+        const newMonthlyData = {
+            budgets: prevData[currentMonthKey]?.budgets || initialBudgets.map(b => ({...b, budget: 0})),
+            expenses: [expenseToAdd, ...(prevData[currentMonthKey]?.expenses || [])]
+        };
+        newData[currentMonthKey] = newMonthlyData;
+        return newData;
+    });
+
     toast({
       title: 'Expense Added',
       description: `${newExpense.description} for ${newExpense.amount} in ${newExpense.category}.`,
@@ -62,24 +99,59 @@ export default function Dashboard() {
   };
 
   const handleUpdateBudgets = (updatedBudgets: Budget[]) => {
-    setBudgets(updatedBudgets);
+    setData(prevData => {
+        const newData = {...prevData};
+        const newMonthlyData = {
+            budgets: updatedBudgets,
+            expenses: prevData[currentMonthKey]?.expenses || []
+        };
+        newData[currentMonthKey] = newMonthlyData;
+        return newData;
+    });
+
     toast({
       title: 'Budgets Updated',
       description: 'Your monthly budgets have been successfully updated.',
     });
   };
 
+  const handleSelectedDateChange = (date: Date) => {
+    setSelectedDate(date);
+    const newMonthKey = format(date, 'yyyy-MM');
+    if (!data[newMonthKey]) {
+        // If no data for new month, create it with default budgets
+        setData(prevData => ({
+            ...prevData,
+            [newMonthKey]: {
+                budgets: initialBudgets, // Or copy from previous month
+                expenses: [],
+            }
+        }));
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header budgets={budgets} expenses={expenses} onAddExpense={handleAddExpense} onUpdateBudgets={handleUpdateBudgets} />
+      <Header 
+        budgets={budgets} 
+        expenses={expenses} 
+        onAddExpense={handleAddExpense} 
+        onUpdateBudgets={handleUpdateBudgets}
+        selectedDate={selectedDate}
+        onSelectedDateChange={handleSelectedDateChange}
+      />
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-3">
             <CategorySpending budgets={budgets} expenses={expenses} />
+          </div>
+          <div className="lg:col-span-2">
             <SpendingCharts budgets={budgets} expenses={expenses} />
+          </div>
         </div>
-        <div className="grid gap-8 lg:grid-cols-5">
-            <div className="lg:col-span-5">
+        <div className="grid gap-8 lg:grid-cols-1">
+            <div className="lg:col-span-1">
                 <RecentTransactions expenses={expenses} />
             </div>
         </div>
