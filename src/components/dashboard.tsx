@@ -7,7 +7,6 @@ import OverviewCards from '@/components/overview-cards';
 import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
-import AiBudgetAdvisor from '@/components/ai-budget-advisor';
 import { useToast } from '@/hooks/use-toast';
 
 const initialBudgets: Budget[] = [
@@ -33,7 +32,6 @@ const initialExpenses: Expense[] = [
 export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
-  const [monthlyIncome, setMonthlyIncome] = useState(4000);
   const { toast } = useToast();
 
   const totalBudget = useMemo(() => budgets.reduce((sum, b) => sum + b.budget, 0), [budgets]);
@@ -76,11 +74,8 @@ export default function Dashboard() {
       <Header budgets={budgets} expenses={expenses} onAddExpense={handleAddExpense} onUpdateBudgets={handleUpdateBudgets} />
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
-        <div className="grid gap-8 md:grid-cols-3">
-          <div className="md:col-span-2">
+        <div className="grid gap-8 md:grid-cols-2">
             <CategorySpending budgets={budgets} expenses={expenses} />
-          </div>
-          <AiBudgetAdvisor budgets={budgets} expenses={expenses} monthlyIncome={monthlyIncome} setMonthlyIncome={setMonthlyIncome} />
         </div>
         <div className="grid gap-8 lg:grid-cols-5">
             <div className="lg:col-span-3">
