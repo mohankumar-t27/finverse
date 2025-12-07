@@ -39,8 +39,7 @@ export default function RecentTransactions({ expenses }: RecentTransactionsProps
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>Details</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
@@ -56,17 +55,18 @@ export default function RecentTransactions({ expenses }: RecentTransactionsProps
                         </div>
                         <div>
                           <div className="font-medium">{expense.description}</div>
-                          <div className="text-sm text-muted-foreground">{expense.category}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {expense.category} &middot; {format(new Date(expense.date), 'MMM dd')}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{format(new Date(expense.date), 'MMM dd')}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(expense.amount)}</TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(expense.amount)}</TableCell>
                   </TableRow>
                 )
               }) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center h-24">No expenses added for this month.</TableCell>
+                  <TableCell colSpan={2} className="text-center h-24">No expenses added for this month.</TableCell>
                 </TableRow>
               )}
             </TableBody>

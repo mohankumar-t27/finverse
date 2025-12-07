@@ -18,19 +18,28 @@ interface HeaderProps {
 
 export default function Header({ budgets, onAddExpense, onUpdateBudgets, selectedDate, onSelectedDateChange }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 border-b bg-card/80 backdrop-blur-sm">
-      <div className="flex items-center gap-2 md:gap-4">
+    <header className="sticky top-0 z-30 flex h-auto min-h-16 flex-col items-start gap-4 p-4 md:h-16 md:flex-row md:items-center md:justify-between md:px-6 border-b bg-card/80 backdrop-blur-sm">
+      <div className="flex w-full items-center justify-between md:w-auto md:justify-start md:gap-4">
         <div className="flex items-center gap-2">
             <IndianRupee className="w-6 h-6 text-primary" />
-            <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-headline whitespace-nowrap">
-            Monthly Expense Calculator
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground font-headline">
+            ExpenseWise
             </h1>
         </div>
-        <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
+        <div className="md:hidden">
+          <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
-        <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+      
+      <div className="flex w-full items-center justify-between gap-2 md:w-auto">
+        <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
+        <div className="hidden md:flex items-center gap-2">
+            <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
+            <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+        </div>
+        <div className="md:hidden">
+             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+        </div>
       </div>
     </header>
   );
