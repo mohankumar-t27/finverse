@@ -34,7 +34,7 @@ export default function RecentTransactions({ expenses }: RecentTransactionsProps
         <CardDescription>Your last 10 expenses.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px]">
+        <ScrollArea className="h-[400px]">
           <Table>
             <TableHeader>
               <TableRow>

@@ -76,12 +76,10 @@ export default function Dashboard() {
         <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
         <div className="grid gap-8 md:grid-cols-2">
             <CategorySpending budgets={budgets} expenses={expenses} />
+            <SpendingCharts budgets={budgets} expenses={expenses} />
         </div>
         <div className="grid gap-8 lg:grid-cols-5">
-            <div className="lg:col-span-3">
-                <SpendingCharts budgets={budgets} expenses={expenses} />
-            </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-5">
                 <RecentTransactions expenses={expenses} />
             </div>
         </div>
