@@ -8,34 +8,30 @@ import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 
-const initialBudgets: Budget[] = [
-  { category: 'Food & Dining', budget: 0 },
-  { category: 'Transportation', budget: 0 },
-  { category: 'Housing & Utilities', budget: 0 },
-  { category: 'Entertainment', budget: 0 },
-  { category: 'Shopping', budget: 0 },
-  { category: 'Health & Wellness', budget: 0 },
-];
-
+const initialBudgets: Budget[] = [];
 const initialExpenses: Expense[] = [];
 
 const getInitialData = (): AppData => {
   if (typeof window === 'undefined') return {};
   const storedData = localStorage.getItem('expenseTrackerData');
+  
+  // To ensure a clean slate for publishing, we will ignore previously stored data.
+  // To re-enable loading from localStorage, you could uncomment the following block.
+  /*
   if (storedData) {
     try {
       const parsedData = JSON.parse(storedData);
-      // Basic validation to ensure it's not malformed
-      if (typeof parsedData === 'object' && parsedData !== null) {
+      if (typeof parsedData === 'object' && parsedData !== null && Object.keys(parsedData).length > 0) {
         return parsedData;
       }
     } catch (e) {
       console.error("Failed to parse data from localStorage", e);
-      // If parsing fails, return a clean slate
     }
   }
+  */
+
   const currentMonthKey = format(new Date(), 'yyyy-MM');
   return {
     [currentMonthKey]: {
@@ -57,7 +53,7 @@ export default function Dashboard() {
   }, [data]);
   
   const monthlyData: MonthlyData = useMemo(() => {
-    return data[currentMonthKey] || { budgets: initialBudgets.map(b => ({...b, budget: 0})), expenses: [] };
+    return data[currentMonthKey] || { budgets: [], expenses: [] };
   }, [data, currentMonthKey]);
 
   const { budgets, expenses } = monthlyData;
@@ -75,7 +71,7 @@ export default function Dashboard() {
     setData(prevData => {
         const newData = {...prevData};
         const newMonthlyData = {
-            budgets: prevData[currentMonthKey]?.budgets || initialBudgets.map(b => ({...b, budget: 0})),
+            budgets: prevData[currentMonthKey]?.budgets || [],
             expenses: [expenseToAdd, ...(prevData[currentMonthKey]?.expenses || [])]
         };
         newData[currentMonthKey] = newMonthlyData;
@@ -90,7 +86,7 @@ export default function Dashboard() {
     const categoryBudget = budgets.find(b => b.category === newExpense.category);
     if (!categoryBudget) return;
 
-    const categorySpent = (prevData[currentMonthKey]?.expenses || [])
+    const categorySpent = (data[currentMonthKey]?.expenses || [])
         .filter(e => e.category === newExpense.category)
         .reduce((sum, e) => sum + e.amount, 0) + newExpense.amount;
 
@@ -125,14 +121,13 @@ export default function Dashboard() {
     setSelectedDate(date);
     const newMonthKey = format(date, 'yyyy-MM');
     if (!data[newMonthKey]) {
-        // If no data for new month, create it with default categories but zero budget
         const previousMonthKey = format(subMonths(date, 1), 'yyyy-MM');
-        const previousBudgets = data[previousMonthKey]?.budgets || initialBudgets;
+        const previousBudgets = data[previousMonthKey]?.budgets || [];
         
         setData(prevData => ({
             ...prevData,
             [newMonthKey]: {
-                budgets: previousBudgets.map(b => ({...b})), // Carry over categories & budgets
+                budgets: previousBudgets.map(b => ({...b})), 
                 expenses: [],
             }
         }));
