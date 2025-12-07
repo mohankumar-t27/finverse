@@ -1,7 +1,6 @@
 'use client';
 
-import { DollarSign, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { IndianRupee } from 'lucide-react';
 import AddExpenseDialog from '@/components/add-expense-dialog';
 import BudgetSetupDialog from '@/components/budget-setup-dialog';
 import type { Budget, Expense } from '@/lib/types';
@@ -17,9 +16,9 @@ export default function Header({ budgets, onAddExpense, onUpdateBudgets }: Heade
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 border-b bg-card/80 backdrop-blur-sm">
       <div className="flex items-center gap-2">
-        <DollarSign className="w-6 h-6 text-primary" />
+        <IndianRupee className="w-6 h-6 text-primary" />
         <h1 className="text-xl font-bold tracking-tight text-foreground font-headline">
-          ExpenseWise
+          Monthly Expense Calculator
         </h1>
       </div>
       <div className="flex items-center gap-2">

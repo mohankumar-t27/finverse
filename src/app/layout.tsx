@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'ExpenseWise',
-  description: 'Track and manage your monthly expenses with AI-powered insights.',
+  title: 'Monthly Expense Calculator',
+  description: 'Track and manage your monthly expenses.',
 };
 
 export default function RootLayout({
