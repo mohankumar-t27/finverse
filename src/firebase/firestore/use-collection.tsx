@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { Query, DocumentData, onSnapshot, QuerySnapshot } from 'firebase/firestore';
+import { onSnapshot, type Query, type DocumentData, type QuerySnapshot } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -25,7 +25,7 @@ export function useCollection<T>(query: Query | null) {
 
     setLoading(true);
 
-    const unsubscribe = (onSnapshot as any)(
+    const unsubscribe = onSnapshot(
         memoizedQuery, 
         (snapshot: QuerySnapshot<DocumentData>) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as T));

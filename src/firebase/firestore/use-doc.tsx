@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { DocumentReference, DocumentData, onSnapshot, DocumentSnapshot } from 'firebase/firestore';
+import { onSnapshot, type DocumentReference, type DocumentData, type DocumentSnapshot } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -25,7 +25,7 @@ export function useDoc<T>(ref: DocumentReference | null) {
 
     setLoading(true);
 
-    const unsubscribe = (onSnapshot as any)(
+    const unsubscribe = onSnapshot(
         memoizedRef, 
         (snapshot: DocumentSnapshot<DocumentData>) => {
             if (snapshot.exists()) {
