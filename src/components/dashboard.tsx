@@ -11,7 +11,8 @@ import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, toDate } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 const STATIC_USER_ID = 'main-user'; // Using a static ID since there's no auth
 
@@ -23,7 +24,12 @@ export default function Dashboard() {
   const [localBudgets, setLocalBudgets] = useState<Budget[] | null>(null);
   const [localExpenses, setLocalExpenses] = useState<Expense[] | null>(null);
 
-  const currentMonthKey = format(selectedDate, 'yyyy-MM');
+  const currentMonthKey = useMemo(() => {
+    // Force the date to be interpreted as UTC to avoid timezone issues
+    // This ensures that "December 1st" doesn't become "November 30th" on the server
+    const zonedDate = utcToZonedTime(selectedDate, 'UTC');
+    return format(zonedDate, 'yyyy-MM');
+  }, [selectedDate]);
 
   // Firestore listeners
   const budgetsRef = useMemo(() => {
