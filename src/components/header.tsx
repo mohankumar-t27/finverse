@@ -34,6 +34,9 @@ export default function Header({
             MokiSpends
           </h1>
         </div>
+        <div className="sm:hidden">
+            <ThemeToggle />
+        </div>
       </div>
       
       <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center md:w-auto md:justify-end">
@@ -42,7 +45,9 @@ export default function Header({
             <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
             <AddEarnedDialog onAddEarned={onAddEarned} />
             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
-            <ThemeToggle />
+            <div className="hidden sm:flex">
+                <ThemeToggle />
+            </div>
         </div>
       </div>
     </header>
