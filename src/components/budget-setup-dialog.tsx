@@ -42,7 +42,7 @@ export default function BudgetSetupDialog({ budgets: initialBudgets, onUpdateBud
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button>
             <Settings className="mr-2 h-4 w-4" />
             Set Budgets
           </Button>
@@ -63,7 +63,7 @@ export default function BudgetSetupDialog({ budgets: initialBudgets, onUpdateBud
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button>
             <Settings className="mr-2 h-4 w-4" />
             Set Budgets
           </Button>

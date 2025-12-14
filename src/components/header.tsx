@@ -2,15 +2,30 @@
 
 import { IndianRupee } from 'lucide-react';
 import MonthSelector from './month-selector';
+import BudgetSetupDialog from './budget-setup-dialog';
+import AddEarnedDialog from './add-earned-dialog';
+import AddExpenseDialog from './add-expense-dialog';
+import type { Budget, Earned, Expense } from '@/lib/types';
 
 interface HeaderProps {
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
+  budgets: Budget[];
+  onUpdateBudgets: (budgets: Budget[]) => void;
+  onAddEarned: (earned: Omit<Earned, 'id' | 'date'>) => void;
+  onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
 }
 
-export default function Header({ selectedDate, onSelectedDateChange }: HeaderProps) {
+export default function Header({ 
+  selectedDate, 
+  onSelectedDateChange,
+  budgets,
+  onUpdateBudgets,
+  onAddEarned,
+  onAddExpense
+}: HeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 backdrop-blur-sm sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <header className="sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 backdrop-blur-sm sm:h-auto md:flex-row md:items-center md:justify-between md:px-6">
       <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-4">
         <div className="flex items-center gap-2">
           <IndianRupee className="h-6 w-6 text-primary" />
@@ -20,8 +35,13 @@ export default function Header({ selectedDate, onSelectedDateChange }: HeaderPro
         </div>
       </div>
       
-      <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+      <div className="flex w-full flex-col items-center gap-4 md:w-auto md:flex-row">
         <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
+        <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+            <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
+            <AddEarnedDialog onAddEarned={onAddEarned} />
+            <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+        </div>
       </div>
     </header>
   );

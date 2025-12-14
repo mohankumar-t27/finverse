@@ -12,15 +12,14 @@ import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import AddExpenseDialog from './add-expense-dialog';
-import BudgetSetupDialog from './budget-setup-dialog';
-import AddEarnedDialog from './add-earned-dialog';
+import Header from './header';
 
 interface MonthlyDashboardProps {
   selectedDate: Date;
+  onSelectedDateChange: (date: Date) => void;
 }
 
-export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps) {
+export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }: MonthlyDashboardProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -146,35 +145,41 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
     )
   }
 
-  if (isDataLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-4 md:p-8">
-        <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
-      </div>
-    );
-  }
-
   return (
-      <>
-        <div className="flex flex-wrap justify-end gap-2">
-            <BudgetSetupDialog budgets={monthlyData.budgets} onUpdateBudgets={handleUpdateBudgets} />
-            <AddEarnedDialog onAddEarned={handleAddEarned} />
-            <AddExpenseDialog categories={monthlyData.budgets.map(b => b.category)} onAddExpense={handleAddExpense} />
-        </div>
-        <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8">
-          <div className="lg:col-span-3">
-              <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-          </div>
-          <div className="lg:col-span-2">
-              <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-          </div>
-        </div>
-        <div className="grid gap-8 lg:grid-cols-1 mt-8">
-            <div className="lg:col-span-1">
-                <RecentTransactions expenses={monthlyData.expenses} onRemoveExpense={handleRemoveExpense} />
-            </div>
-        </div>
-      </>
+      <div className="flex flex-col min-h-screen">
+          <Header
+            selectedDate={selectedDate}
+            onSelectedDateChange={onSelectedDateChange}
+            budgets={monthlyData.budgets}
+            onUpdateBudgets={handleUpdateBudgets}
+            onAddEarned={handleAddEarned}
+            onAddExpense={handleAddExpense}
+          />
+
+          <main className="flex-1 p-4 md:p-8 space-y-8">
+            {isDataLoading ? (
+                <div className="flex flex-1 items-center justify-center p-4 md:p-8">
+                    <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
+                </div>
+            ) : (
+                <>
+                    <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8">
+                    <div className="lg:col-span-3">
+                        <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
+                    </div>
+                    <div className="lg:col-span-2">
+                        <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
+                    </div>
+                    </div>
+                    <div className="grid gap-8 lg:grid-cols-1 mt-8">
+                        <div className="lg:col-span-1">
+                            <RecentTransactions expenses={monthlyData.expenses} onRemoveExpense={handleRemoveExpense} />
+                        </div>
+                    </div>
+                </>
+            )}
+        </main>
+      </div>
   );
 }
