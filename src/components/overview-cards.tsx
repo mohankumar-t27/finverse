@@ -18,7 +18,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
        <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Earned</CardTitle>
+          <CardTitle className="text-sm font-medium">Income</CardTitle>
           <Banknote className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -28,7 +28,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
+          <CardTitle className="text-sm font-medium">Budget</CardTitle>
           <PiggyBank className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -38,7 +38,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+          <CardTitle className="text-sm font-medium">Spent</CardTitle>
           <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

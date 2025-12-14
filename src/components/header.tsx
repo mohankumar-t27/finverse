@@ -26,7 +26,7 @@ export default function Header({
   onAddExpense
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 backdrop-blur-sm sm:h-auto md:flex-row md:items-center md:justify-between md:px-6">
+    <header className="sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 backdrop-blur-sm sm:h-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
       <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-4">
         <div className="flex items-center gap-2">
           <IndianRupee className="h-6 w-6 text-primary" />
@@ -36,7 +36,7 @@ export default function Header({
         </div>
       </div>
       
-      <div className="flex w-full flex-col items-center gap-4 md:w-auto md:flex-row">
+      <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center md:w-auto md:justify-end">
         <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
         <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
             <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
