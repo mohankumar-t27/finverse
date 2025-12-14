@@ -21,11 +21,9 @@ export default function Dashboard() {
   const { toast } = useToast();
   const firestore = useFirestore();
   
-  const [localBudgets, setLocalBudgets] = useState<Budget[] | null>(null);
-  const [localExpenses, setLocalExpenses] = useState<Expense[] | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   const currentMonthKey = useMemo(() => {
-    // Force the date to be interpreted as UTC to avoid timezone issues
     // This ensures that "December 1st" doesn't become "November 30th" on the server
     const zonedDate = toZonedTime(selectedDate, 'UTC');
     return format(zonedDate, 'yyyy-MM');
@@ -46,25 +44,18 @@ export default function Dashboard() {
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
   
+  // Manage loading state based on Firestore hooks
   useEffect(() => {
-    if (!budgetsLoading) {
-      setLocalBudgets(budgets);
-    }
-  }, [budgets, budgetsLoading]);
-
-  useEffect(() => {
-    if (!expensesLoading) {
-      setLocalExpenses(expenses);
-    }
-  }, [expenses, expensesLoading]);
+    setIsDataLoading(budgetsLoading || expensesLoading);
+  }, [budgetsLoading, expensesLoading]);
   
   const monthlyData: MonthlyData = useMemo(() => ({
-    budgets: localBudgets || [],
-    expenses: localExpenses || [],
-  }), [localBudgets, localExpenses]);
+    budgets: budgets || [],
+    expenses: expenses || [],
+  }), [budgets, expenses]);
 
-  const totalBudget = useMemo(() => (localBudgets || []).reduce((sum, b) => sum + b.budget, 0), [localBudgets]);
-  const totalSpent = useMemo(() => (localExpenses || []).reduce((sum, e) => sum + e.amount, 0), [localExpenses]);
+  const totalBudget = useMemo(() => (budgets || []).reduce((sum, b) => sum + b.budget, 0), [budgets]);
+  const totalSpent = useMemo(() => (expenses || []).reduce((sum, e) => sum + e.amount, 0), [expenses]);
   
   const handleAddExpense = (newExpense: Omit<Expense, 'id' | 'date'>) => {
     if (!firestore) return;
@@ -114,9 +105,6 @@ export default function Dashboard() {
   };
 
   const handleSelectedDateChange = (date: Date) => {
-    // Clear local data immediately to prevent showing old data
-    setLocalBudgets(null);
-    setLocalExpenses(null);
     setSelectedDate(date);
   }
 
@@ -128,16 +116,6 @@ export default function Dashboard() {
       title: 'Expense Removed',
       description: 'The selected expense has been removed.',
     });
-  }
-
-  const isLoading = (budgetsLoading || expensesLoading) && (!localBudgets || !localExpenses);
-
-  if (isLoading) {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <p>Loading data...</p>
-        </div>
-    )
   }
 
   if (budgetsError || expensesError) {
@@ -157,22 +135,28 @@ export default function Dashboard() {
         selectedDate={selectedDate}
         onSelectedDateChange={handleSelectedDateChange}
       />
-      <main className="flex-1 p-4 md:p-8 space-y-8">
-        <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
-          <div className="lg:col-span-3">
-            <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-          </div>
-          <div className="lg:col-span-2">
-            <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-          </div>
+      {isDataLoading ? (
+         <div className="flex flex-1 items-center justify-center">
+            <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
         </div>
-        <div className="grid gap-8 lg:grid-cols-1">
-            <div className="lg:col-span-1">
-                <RecentTransactions expenses={monthlyData.expenses} onRemoveExpense={handleRemoveExpense} />
+      ) : (
+        <main className="flex-1 p-4 md:p-8 space-y-8">
+            <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+            <div className="lg:col-span-3">
+                <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
             </div>
-        </div>
-      </main>
+            <div className="lg:col-span-2">
+                <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
+            </div>
+            </div>
+            <div className="grid gap-8 lg:grid-cols-1">
+                <div className="lg:col-span-1">
+                    <RecentTransactions expenses={monthlyData.expenses} onRemoveExpense={handleRemoveExpense} />
+                </div>
+            </div>
+        </main>
+      )}
     </div>
   );
 }
