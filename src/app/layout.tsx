@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import FirebaseClientProvider from '@/firebase/provider';
-import { BackgroundGradientAnimation } from '@/components/ui/background-gradient';
 
 export const metadata: Metadata = {
   title: 'MokiSpends',
@@ -27,19 +26,17 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased min-h-screen bg-background')}>
-        <BackgroundGradientAnimation>
-          <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-          >
-            <FirebaseClientProvider>
-              {children}
-              <Toaster />
-            </FirebaseClientProvider>
-          </ThemeProvider>
-        </BackgroundGradientAnimation>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <FirebaseClientProvider>
+            {children}
+            <Toaster />
+          </FirebaseClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

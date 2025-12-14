@@ -4,6 +4,9 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 0);
+  background-size: 20px 20px;
 }
 
 @layer base {
