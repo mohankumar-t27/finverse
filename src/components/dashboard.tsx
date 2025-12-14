@@ -11,7 +11,7 @@ import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
-import { format, subMonths } from 'date-fns';
+import { format } from 'date-fns';
 
 const STATIC_USER_ID = 'main-user'; // Using a static ID since there's no auth
 
@@ -20,6 +20,9 @@ export default function Dashboard() {
   const { toast } = useToast();
   const firestore = useFirestore();
   
+  const [localBudgets, setLocalBudgets] = useState<Budget[] | null>(null);
+  const [localExpenses, setLocalExpenses] = useState<Expense[] | null>(null);
+
   const currentMonthKey = format(selectedDate, 'yyyy-MM');
 
   // Firestore listeners
@@ -37,13 +40,21 @@ export default function Dashboard() {
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
   
-  const monthlyData: MonthlyData = useMemo(() => ({
-    budgets: budgets || [],
-    expenses: expenses || [],
-  }), [budgets, expenses]);
+  useEffect(() => {
+    setLocalBudgets(budgets);
+  }, [budgets]);
 
-  const totalBudget = useMemo(() => (budgets || []).reduce((sum, b) => sum + b.budget, 0), [budgets]);
-  const totalSpent = useMemo(() => (expenses || []).reduce((sum, e) => sum + e.amount, 0), [expenses]);
+  useEffect(() => {
+    setLocalExpenses(expenses);
+  }, [expenses]);
+  
+  const monthlyData: MonthlyData = useMemo(() => ({
+    budgets: localBudgets || [],
+    expenses: localExpenses || [],
+  }), [localBudgets, localExpenses]);
+
+  const totalBudget = useMemo(() => (localBudgets || []).reduce((sum, b) => sum + b.budget, 0), [localBudgets]);
+  const totalSpent = useMemo(() => (localExpenses || []).reduce((sum, e) => sum + e.amount, 0), [localExpenses]);
   
   const handleAddExpense = (newExpense: Omit<Expense, 'id' | 'date'>) => {
     if (!firestore) return;
@@ -93,6 +104,9 @@ export default function Dashboard() {
   };
 
   const handleSelectedDateChange = (date: Date) => {
+    // Clear local data immediately to prevent showing old data
+    setLocalBudgets(null);
+    setLocalExpenses(null);
     setSelectedDate(date);
   }
 
@@ -106,7 +120,9 @@ export default function Dashboard() {
     });
   }
 
-  if (budgetsLoading || expensesLoading) {
+  const isLoading = (budgetsLoading || expensesLoading) && (!localBudgets || !localExpenses);
+
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen">
             <p>Loading data...</p>
