@@ -11,8 +11,8 @@ import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
-import { format, toDate } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 const STATIC_USER_ID = 'main-user'; // Using a static ID since there's no auth
 
@@ -27,7 +27,7 @@ export default function Dashboard() {
   const currentMonthKey = useMemo(() => {
     // Force the date to be interpreted as UTC to avoid timezone issues
     // This ensures that "December 1st" doesn't become "November 30th" on the server
-    const zonedDate = utcToZonedTime(selectedDate, 'UTC');
+    const zonedDate = toZonedTime(selectedDate, 'UTC');
     return format(zonedDate, 'yyyy-MM');
   }, [selectedDate]);
 
@@ -47,12 +47,16 @@ export default function Dashboard() {
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
   
   useEffect(() => {
-    setLocalBudgets(budgets);
-  }, [budgets]);
+    if (!budgetsLoading) {
+      setLocalBudgets(budgets);
+    }
+  }, [budgets, budgetsLoading]);
 
   useEffect(() => {
-    setLocalExpenses(expenses);
-  }, [expenses]);
+    if (!expensesLoading) {
+      setLocalExpenses(expenses);
+    }
+  }, [expenses, expensesLoading]);
   
   const monthlyData: MonthlyData = useMemo(() => ({
     budgets: localBudgets || [],
