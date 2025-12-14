@@ -41,7 +41,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
     return (
         <div className={cn(
             "text-2xl font-bold transition-all duration-300", 
-            !isVisible && "blur-sm select-none",
+            !isVisible && "blur-md select-none",
             className
         )}>
             {formatCurrency(amount)}
