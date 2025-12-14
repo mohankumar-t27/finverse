@@ -66,6 +66,27 @@
         }
       },
       "required": ["amount", "category", "description", "date"]
+    },
+    "earned": {
+      "title": "Earned",
+      "description": "Represents a single earned income entry.",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "description": "The amount earned."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the income source."
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the income was recorded."
+        }
+      },
+      "required": ["amount", "description", "date"]
     }
   },
   "auth": {
@@ -83,6 +104,12 @@
         "$ref": "#/entities/expense"
       },
       "description": "Stores the expenses for a specific user and month."
+    },
+    "/users/{userId}/months/{monthId}/earned/{earned_id}": {
+      "schema": {
+        "$ref": "#/entities/earned"
+      },
+      "description": "Stores the earned income for a specific user and month."
     }
   }
 }

@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { collection, doc, orderBy, query, serverTimestamp } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import type { Budget, Expense, MonthlyData } from '@/lib/types';
+import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
 import OverviewCards from '@/components/overview-cards';
 import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import AddExpenseDialog from './add-expense-dialog';
 import BudgetSetupDialog from './budget-setup-dialog';
+import AddEarnedDialog from './add-earned-dialog';
 
 const STATIC_USER_ID = 'main-user'; // Using a static ID since there's no auth
 
@@ -21,13 +22,15 @@ interface MonthlyDashboardProps {
   selectedDate: Date;
 }
 
-const DashboardHeader = ({ budgets, onUpdateBudgets, onAddExpense }: {
+const DashboardHeader = ({ budgets, onUpdateBudgets, onAddExpense, onAddEarned }: {
     budgets: Budget[];
     onUpdateBudgets: (budgets: Budget[]) => void;
     onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
+    onAddEarned: (earned: Omit<Earned, 'id' | 'date'>) => void;
 }) => (
     <div className="flex justify-end gap-2 mb-8">
         <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
+        <AddEarnedDialog onAddEarned={onAddEarned} />
         <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
     </div>
 );
@@ -52,19 +55,28 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
       const expensesRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'expenses');
       return query(expensesRef, orderBy('date', 'desc'));
   }, [firestore, currentMonthKey]);
+  
+  const earnedQuery = useMemo(() => {
+      if (!firestore) return null;
+      const earnedRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'earned');
+      return query(earnedRef, orderBy('date', 'desc'));
+  }, [firestore, currentMonthKey]);
 
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
+  const { data: earned, loading: earnedLoading, error: earnedError } = useCollection<Earned>(earnedQuery);
   
-  const isDataLoading = budgetsLoading || expensesLoading;
+  const isDataLoading = budgetsLoading || expensesLoading || earnedLoading;
   
   const monthlyData: MonthlyData = useMemo(() => ({
     budgets: budgets || [],
     expenses: expenses || [],
-  }), [budgets, expenses]);
+    earned: earned || [],
+  }), [budgets, expenses, earned]);
 
   const totalBudget = useMemo(() => (budgets || []).reduce((sum, b) => sum + b.budget, 0), [budgets]);
   const totalSpent = useMemo(() => (expenses || []).reduce((sum, e) => sum + e.amount, 0), [expenses]);
+  const totalEarned = useMemo(() => (earned || []).reduce((sum, e) => sum + e.amount, 0), [earned]);
   
   const handleAddExpense = (newExpense: Omit<Expense, 'id' | 'date'>) => {
     if (!firestore) return;
@@ -99,6 +111,24 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
     }
   };
 
+  const handleAddEarned = (newEarned: Omit<Earned, 'id' | 'date'>) => {
+    if (!firestore) return;
+    
+    const earnedRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'earned');
+    
+    const earnedToAdd = {
+      ...newEarned,
+      date: serverTimestamp(),
+    };
+
+    addDocumentNonBlocking(earnedRef, earnedToAdd);
+
+    toast({
+      title: 'Income Added',
+      description: `Added ${newEarned.description} for Rs ${newEarned.amount}.`,
+    });
+  };
+
   const handleUpdateBudgets = (updatedBudgets: Budget[]) => {
     if (!firestore) return;
     
@@ -123,10 +153,10 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
     });
   }
   
-  if (budgetsError || expensesError) {
+  if (budgetsError || expensesError || earnedError) {
     return (
          <div className="flex items-center justify-center min-h-screen">
-            <p className="text-destructive">Error: {budgetsError?.message || expensesError?.message}</p>
+            <p className="text-destructive">Error: {budgetsError?.message || expensesError?.message || earnedError?.message}</p>
         </div>
     )
   }
@@ -145,8 +175,9 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
             budgets={monthlyData.budgets}
             onUpdateBudgets={handleUpdateBudgets}
             onAddExpense={handleAddExpense}
+            onAddEarned={handleAddEarned}
         />
-        <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} />
+        <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8">
         <div className="lg:col-span-3">
             <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
