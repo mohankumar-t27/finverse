@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { PiggyBank, CircleDollarSign, Wallet, Banknote, Landmark, Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 interface OverviewCardsProps {
   totalBudget: number;
@@ -38,14 +39,14 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
 
   const renderValue = (amount: number, isVisible: boolean) => {
     if (!isVisible) {
-      return <span className="text-2xl font-bold">Rs ****</span>;
+      return <Skeleton className="h-8 w-3/4" />;
     }
     return <div className="text-2xl font-bold">{formatCurrency(amount)}</div>;
   };
 
   const renderValueWithColor = (amount: number, isVisible: boolean, positiveClass: string, negativeClass: string) => {
     if (!isVisible) {
-        return <span className="text-2xl font-bold">Rs ****</span>;
+        return <Skeleton className="h-8 w-3/4" />;
     }
     return <div className={`text-2xl font-bold ${amount < 0 ? negativeClass : positiveClass}`}>{formatCurrency(amount)}</div>;
   }
