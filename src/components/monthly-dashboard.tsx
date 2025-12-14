@@ -16,24 +16,9 @@ import AddExpenseDialog from './add-expense-dialog';
 import BudgetSetupDialog from './budget-setup-dialog';
 import AddEarnedDialog from './add-earned-dialog';
 
-const STATIC_USER_ID = 'main-user'; // Using a static ID since there's no auth
-
 interface MonthlyDashboardProps {
   selectedDate: Date;
 }
-
-const DashboardHeader = ({ budgets, onUpdateBudgets, onAddExpense, onAddEarned }: {
-    budgets: Budget[];
-    onUpdateBudgets: (budgets: Budget[]) => void;
-    onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
-    onAddEarned: (earned: Omit<Earned, 'id' | 'date'>) => void;
-}) => (
-    <div className="flex justify-end gap-2 mb-8">
-        <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
-        <AddEarnedDialog onAddEarned={onAddEarned} />
-        <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
-    </div>
-);
 
 export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps) {
   const { toast } = useToast();
@@ -47,18 +32,18 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
   // Firestore listeners
   const budgetsRef = useMemo(() => {
       if (!firestore) return null;
-      return collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'budgets');
+      return collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets');
   }, [firestore, currentMonthKey]);
 
   const expensesQuery = useMemo(() => {
       if (!firestore) return null;
-      const expensesRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'expenses');
+      const expensesRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses');
       return query(expensesRef, orderBy('date', 'desc'));
   }, [firestore, currentMonthKey]);
   
   const earnedQuery = useMemo(() => {
       if (!firestore) return null;
-      const earnedRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'earned');
+      const earnedRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'earned');
       return query(earnedRef, orderBy('date', 'desc'));
   }, [firestore, currentMonthKey]);
 
@@ -81,7 +66,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
   const handleAddExpense = (newExpense: Omit<Expense, 'id' | 'date'>) => {
     if (!firestore) return;
     
-    const expensesRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'expenses');
+    const expensesRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses');
     
     const expenseToAdd = {
       ...newExpense,
@@ -114,7 +99,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
   const handleAddEarned = (newEarned: Omit<Earned, 'id' | 'date'>) => {
     if (!firestore) return;
     
-    const earnedRef = collection(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'earned');
+    const earnedRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'earned');
     
     const earnedToAdd = {
       ...newEarned,
@@ -133,7 +118,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
     if (!firestore) return;
     
     updatedBudgets.forEach(budget => {
-        const budgetRef = doc(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'budgets', budget.category);
+        const budgetRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets', budget.category);
         setDocumentNonBlocking(budgetRef, budget, { merge: true });
     });
 
@@ -145,7 +130,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
 
   const handleRemoveExpense = (expenseId: string) => {
     if (!firestore) return;
-    const expenseRef = doc(firestore, 'users', STATIC_USER_ID, 'months', currentMonthKey, 'expenses', expenseId);
+    const expenseRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses', expenseId);
     deleteDocumentNonBlocking(expenseRef);
     toast({
       title: 'Expense Removed',
@@ -163,34 +148,33 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
 
   if (isDataLoading) {
     return (
-        <div className="flex flex-1 items-center justify-center">
-          <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
+      <div className="flex flex-1 items-center justify-center">
+        <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
       </div>
     );
   }
 
   return (
-    <>
-        <DashboardHeader
-            budgets={monthlyData.budgets}
-            onUpdateBudgets={handleUpdateBudgets}
-            onAddExpense={handleAddExpense}
-            onAddEarned={handleAddEarned}
-        />
+      <>
+        <div className="flex justify-end gap-2">
+            <BudgetSetupDialog budgets={monthlyData.budgets} onUpdateBudgets={handleUpdateBudgets} />
+            <AddEarnedDialog onAddEarned={handleAddEarned} />
+            <AddExpenseDialog categories={monthlyData.budgets.map(b => b.category)} onAddExpense={handleAddExpense} />
+        </div>
         <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8">
-        <div className="lg:col-span-3">
-            <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-        </div>
-        <div className="lg:col-span-2">
-            <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
-        </div>
+          <div className="lg:col-span-3">
+              <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
+          </div>
+          <div className="lg:col-span-2">
+              <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
+          </div>
         </div>
         <div className="grid gap-8 lg:grid-cols-1 mt-8">
             <div className="lg:col-span-1">
                 <RecentTransactions expenses={monthlyData.expenses} onRemoveExpense={handleRemoveExpense} />
             </div>
         </div>
-    </>
+      </>
   );
 }
