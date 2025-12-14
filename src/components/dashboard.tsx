@@ -20,8 +20,6 @@ export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { toast } = useToast();
   const firestore = useFirestore();
-  
-  const [isDataLoading, setIsDataLoading] = useState(true);
 
   const currentMonthKey = useMemo(() => {
     // This ensures that "December 1st" doesn't become "November 30th" on the server
@@ -44,10 +42,7 @@ export default function Dashboard() {
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
   
-  // Manage loading state based on Firestore hooks
-  useEffect(() => {
-    setIsDataLoading(budgetsLoading || expensesLoading);
-  }, [budgetsLoading, expensesLoading]);
+  const isDataLoading = budgetsLoading || expensesLoading;
   
   const monthlyData: MonthlyData = useMemo(() => ({
     budgets: budgets || [],
