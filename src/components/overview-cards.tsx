@@ -12,24 +12,38 @@ interface OverviewCardsProps {
   totalEarned: number;
 }
 
+type CardVisibility = {
+    income: boolean;
+    budget: boolean;
+    spent: boolean;
+    remaining: boolean;
+    savings: boolean;
+}
+
 export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: OverviewCardsProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [visibilities, setVisibilities] = useState<CardVisibility>({
+    income: true,
+    budget: true,
+    spent: true,
+    remaining: true,
+    savings: true,
+  });
   
   const remainingFromBudget = totalBudget - totalSpent;
   const savings = totalEarned - totalBudget;
 
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
+  const toggleVisibility = (card: keyof CardVisibility) => {
+    setVisibilities(prev => ({ ...prev, [card]: !prev[card] }));
   };
 
-  const renderValue = (amount: number) => {
+  const renderValue = (amount: number, isVisible: boolean) => {
     if (!isVisible) {
       return <span className="text-2xl font-bold">Rs ****</span>;
     }
     return <div className="text-2xl font-bold">{formatCurrency(amount)}</div>;
   };
 
-  const renderValueWithColor = (amount: number, positiveClass: string, negativeClass: string) => {
+  const renderValueWithColor = (amount: number, isVisible: boolean, positiveClass: string, negativeClass: string) => {
     if (!isVisible) {
         return <span className="text-2xl font-bold">Rs ****</span>;
     }
@@ -43,34 +57,44 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Income</CardTitle>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggleVisibility} className="h-6 w-6">
-                {isVisible ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+              <Button variant="ghost" size="icon" onClick={() => toggleVisibility('income')} className="h-6 w-6">
+                {visibilities.income ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
               </Button>
               <Banknote className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
-            {renderValue(totalEarned)}
+            {renderValue(totalEarned, visibilities.income)}
             <p className="text-xs text-muted-foreground">Your total monthly income</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Budget</CardTitle>
-             <PiggyBank className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => toggleVisibility('budget')} className="h-6 w-6">
+                    {visibilities.budget ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+                <PiggyBank className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            {renderValue(totalBudget)}
+            {renderValue(totalBudget, visibilities.budget)}
             <p className="text-xs text-muted-foreground">Your total monthly budget</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Spent</CardTitle>
-            <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => toggleVisibility('spent')} className="h-6 w-6">
+                    {visibilities.spent ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+                <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            {renderValue(totalSpent)}
+            {renderValue(totalSpent, visibilities.spent)}
             <p className="text-xs text-muted-foreground">
               {totalBudget > 0 ? `${((totalSpent / totalBudget) * 100).toFixed(0)}% of budget used` : 'No budget set'}
             </p>
@@ -79,20 +103,30 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => toggleVisibility('remaining')} className="h-6 w-6">
+                    {visibilities.remaining ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            {renderValueWithColor(remainingFromBudget, 'text-primary', 'text-destructive')}
+            {renderValueWithColor(remainingFromBudget, visibilities.remaining, 'text-primary', 'text-destructive')}
             <p className="text-xs text-muted-foreground">Remaining from your budget</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Savings</CardTitle>
-            <Landmark className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => toggleVisibility('savings')} className="h-6 w-6">
+                    {visibilities.savings ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                </Button>
+                <Landmark className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            {renderValueWithColor(savings, 'text-accent', 'text-destructive')}
+            {renderValueWithColor(savings, visibilities.savings, 'text-accent', 'text-destructive')}
             <p className="text-xs text-muted-foreground">Planned savings based on budget</p>
           </CardContent>
         </Card>
