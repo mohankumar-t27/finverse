@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
-import { PiggyBank, CircleDollarSign, Wallet, Banknote, Landmark } from 'lucide-react';
+import { PiggyBank, CircleDollarSign, Wallet, Banknote, Landmark, Eye, EyeOff } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface OverviewCardsProps {
   totalBudget: number;
@@ -11,67 +13,90 @@ interface OverviewCardsProps {
 }
 
 export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: OverviewCardsProps) {
+  const [isVisible, setIsVisible] = useState(true);
+  
   const remainingFromBudget = totalBudget - totalSpent;
   const savings = totalEarned - totalBudget;
 
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
+  };
+
+  const renderValue = (amount: number) => {
+    if (!isVisible) {
+      return <span className="text-2xl font-bold">Rs ****</span>;
+    }
+    return <div className="text-2xl font-bold">{formatCurrency(amount)}</div>;
+  };
+
+  const renderValueWithColor = (amount: number, positiveClass: string, negativeClass: string) => {
+    if (!isVisible) {
+        return <span className="text-2xl font-bold">Rs ****</span>;
+    }
+    return <div className={`text-2xl font-bold ${amount < 0 ? negativeClass : positiveClass}`}>{formatCurrency(amount)}</div>;
+  }
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Income</CardTitle>
-          <Banknote className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalEarned)}</div>
-          <p className="text-xs text-muted-foreground">Your total monthly income</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Budget</CardTitle>
-          <PiggyBank className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalBudget)}</div>
-          <p className="text-xs text-muted-foreground">Your total monthly budget</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Spent</CardTitle>
-          <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(totalSpent)}</div>
-          <p className="text-xs text-muted-foreground">
-            {totalBudget > 0 ? `${((totalSpent / totalBudget) * 100).toFixed(0)}% of budget used` : 'No budget set'}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className={`text-2xl font-bold ${remainingFromBudget < 0 ? 'text-destructive' : 'text-primary'}`}>
-            {formatCurrency(remainingFromBudget)}
-          </div>
-          <p className="text-xs text-muted-foreground">Remaining from your budget</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Savings</CardTitle>
-          <Landmark className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className={`text-2xl font-bold ${savings < 0 ? 'text-destructive' : 'text-accent'}`}>
-            {formatCurrency(savings)}
-          </div>
-          <p className="text-xs text-muted-foreground">Planned savings based on budget</p>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Income</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={toggleVisibility} className="h-6 w-6">
+                {isVisible ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+              </Button>
+              <Banknote className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {renderValue(totalEarned)}
+            <p className="text-xs text-muted-foreground">Your total monthly income</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Budget</CardTitle>
+             <PiggyBank className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {renderValue(totalBudget)}
+            <p className="text-xs text-muted-foreground">Your total monthly budget</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Spent</CardTitle>
+            <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {renderValue(totalSpent)}
+            <p className="text-xs text-muted-foreground">
+              {totalBudget > 0 ? `${((totalSpent / totalBudget) * 100).toFixed(0)}% of budget used` : 'No budget set'}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {renderValueWithColor(remainingFromBudget, 'text-primary', 'text-destructive')}
+            <p className="text-xs text-muted-foreground">Remaining from your budget</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Savings</CardTitle>
+            <Landmark className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {renderValueWithColor(savings, 'text-accent', 'text-destructive')}
+            <p className="text-xs text-muted-foreground">Planned savings based on budget</p>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
