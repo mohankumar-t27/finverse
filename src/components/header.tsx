@@ -6,6 +6,7 @@ import BudgetSetupDialog from './budget-setup-dialog';
 import AddEarnedDialog from './add-earned-dialog';
 import AddExpenseDialog from './add-expense-dialog';
 import type { Budget, Earned, Expense } from '@/lib/types';
+import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
   selectedDate: Date;
@@ -41,6 +42,7 @@ export default function Header({
             <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
             <AddEarnedDialog onAddEarned={onAddEarned} />
             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+            <ThemeToggle />
         </div>
       </div>
     </header>

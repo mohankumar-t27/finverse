@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import FirebaseProvider from '@/firebase/provider';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'MokiSpends',
@@ -25,10 +26,17 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased min-h-screen bg-background')}>
-        <FirebaseProvider>
-          {children}
-          <Toaster />
-        </FirebaseProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <FirebaseProvider>
+            {children}
+            <Toaster />
+          </FirebaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
