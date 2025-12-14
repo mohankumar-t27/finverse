@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { PiggyBank, CircleDollarSign, Wallet, Banknote, Landmark, Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/button';
-import { Skeleton } from './ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface OverviewCardsProps {
   totalBudget: number;
@@ -37,19 +37,17 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
     setVisibilities(prev => ({ ...prev, [card]: !prev[card] }));
   };
 
-  const renderValue = (amount: number, isVisible: boolean) => {
-    if (!isVisible) {
-      return <Skeleton className="h-8 w-3/4" />;
-    }
-    return <div className="text-2xl font-bold">{formatCurrency(amount)}</div>;
+  const renderValue = (amount: number, isVisible: boolean, className?: string) => {
+    return (
+        <div className={cn(
+            "text-2xl font-bold transition-all duration-300", 
+            !isVisible && "blur-sm select-none",
+            className
+        )}>
+            {formatCurrency(amount)}
+        </div>
+    );
   };
-
-  const renderValueWithColor = (amount: number, isVisible: boolean, positiveClass: string, negativeClass: string) => {
-    if (!isVisible) {
-        return <Skeleton className="h-8 w-3/4" />;
-    }
-    return <div className={`text-2xl font-bold ${amount < 0 ? negativeClass : positiveClass}`}>{formatCurrency(amount)}</div>;
-  }
 
   return (
     <>
@@ -112,7 +110,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
             </div>
           </CardHeader>
           <CardContent>
-            {renderValueWithColor(remainingFromBudget, visibilities.remaining, 'text-primary', 'text-destructive')}
+            {renderValue(remainingFromBudget, visibilities.remaining, remainingFromBudget < 0 ? 'text-destructive' : 'text-primary')}
             <p className="text-xs text-muted-foreground">Remaining from your budget</p>
           </CardContent>
         </Card>
@@ -127,7 +125,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
             </div>
           </CardHeader>
           <CardContent>
-            {renderValueWithColor(savings, visibilities.savings, 'text-accent', 'text-destructive')}
+            {renderValue(savings, visibilities.savings, savings < 0 ? 'text-destructive' : 'text-accent')}
             <p className="text-xs text-muted-foreground">Planned savings based on budget</p>
           </CardContent>
         </Card>
