@@ -12,7 +12,7 @@ interface OverviewCardsProps {
 
 export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: OverviewCardsProps) {
   const remainingFromBudget = totalBudget - totalSpent;
-  const savings = totalEarned - totalSpent;
+  const savings = totalEarned - totalBudget;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -69,7 +69,7 @@ export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: 
           <div className={`text-2xl font-bold ${savings < 0 ? 'text-destructive' : 'text-accent'}`}>
             {formatCurrency(savings)}
           </div>
-          <p className="text-xs text-muted-foreground">Remaining from your income</p>
+          <p className="text-xs text-muted-foreground">Planned savings based on budget</p>
         </CardContent>
       </Card>
     </div>
