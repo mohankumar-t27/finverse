@@ -54,7 +54,7 @@ export default function RecentTransactions({ expenses, onRemoveExpense }: Recent
               <TableRow>
                 <TableHead>Details</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="hidden sm:table-cell w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -76,7 +76,7 @@ export default function RecentTransactions({ expenses, onRemoveExpense }: Recent
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(expense.amount)}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => onRemoveExpense(expense.id)}>
                          <Trash2 className="h-4 w-4" />
                        </Button>

@@ -148,7 +148,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
 
   if (isDataLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center p-4 md:p-8">
         <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
       </div>
     );
@@ -156,7 +156,7 @@ export default function MonthlyDashboard({ selectedDate }: MonthlyDashboardProps
 
   return (
       <>
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
             <BudgetSetupDialog budgets={monthlyData.budgets} onUpdateBudgets={handleUpdateBudgets} />
             <AddEarnedDialog onAddEarned={handleAddEarned} />
             <AddExpenseDialog categories={monthlyData.budgets.map(b => b.category)} onAddExpense={handleAddExpense} />
