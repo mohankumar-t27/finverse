@@ -8,7 +8,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -28,6 +27,7 @@ import type { Budget } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 import { getCategoryIcon } from '@/lib/icons';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { cn } from '@/lib/utils';
 
 
 interface BudgetSetupDialogProps {
