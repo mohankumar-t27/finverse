@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/firebase";
 import { signOut, type User } from "firebase/auth";
+import MigrationDialog from "./migration-dialog";
 
 interface UserNavProps {
     user: User;
@@ -50,6 +51,10 @@ export function UserNav({ user }: UserNavProps) {
             </p>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+           <MigrationDialog />
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           Log out
