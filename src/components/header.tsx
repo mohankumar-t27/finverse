@@ -17,6 +17,8 @@ interface HeaderProps {
   onUpdateBudgets: (budgets: Budget[]) => void;
   onAddEarned: (earned: Omit<Earned, 'id' | 'date'>) => void;
   onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
+  onCopyPreviousBudgets: () => void;
+  canCopyPreviousBudgets: boolean;
 }
 
 export default function Header({ 
@@ -25,7 +27,9 @@ export default function Header({
   budgets,
   onUpdateBudgets,
   onAddEarned,
-  onAddExpense
+  onAddExpense,
+  onCopyPreviousBudgets,
+  canCopyPreviousBudgets,
 }: HeaderProps) {
   const { user } = useAuth();
   return (
@@ -42,7 +46,12 @@ export default function Header({
       <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center md:w-auto md:justify-end">
         <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
         <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
-            <BudgetSetupDialog budgets={budgets} onUpdateBudgets={onUpdateBudgets} />
+            <BudgetSetupDialog 
+              budgets={budgets} 
+              onUpdateBudgets={onUpdateBudgets}
+              onCopyPreviousBudgets={onCopyPreviousBudgets}
+              canCopyPreviousBudgets={canCopyPreviousBudgets}
+            />
             <AddEarnedDialog onAddEarned={onAddEarned} />
             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
             <div className="flex items-center gap-2">

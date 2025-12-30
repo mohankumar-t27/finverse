@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { collection, doc, orderBy, query, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, orderBy, query, serverTimestamp } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
@@ -10,7 +10,7 @@ import CategorySpending from '@/components/category-spending';
 import SpendingCharts from '@/components/spending-charts';
 import RecentTransactions from '@/components/recent-transactions';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import Header from './header';
 
@@ -25,6 +25,12 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
 
   const currentMonthKey = useMemo(() => {
     const zonedDate = toZonedTime(selectedDate, 'UTC');
+    return format(zonedDate, 'yyyy-MM');
+  }, [selectedDate]);
+
+  const previousMonthKey = useMemo(() => {
+    const prevMonthDate = subMonths(selectedDate, 1);
+    const zonedDate = toZonedTime(prevMonthDate, 'UTC');
     return format(zonedDate, 'yyyy-MM');
   }, [selectedDate]);
 
@@ -45,12 +51,20 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
       const earnedRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'earned');
       return query(earnedRef, orderBy('date', 'desc'));
   }, [firestore, currentMonthKey]);
+  
+  const prevBudgetsRef = useMemo(() => {
+      if (!firestore) return null;
+      return collection(firestore, 'users', 'main-user', 'months', previousMonthKey, 'budgets');
+  }, [firestore, previousMonthKey]);
 
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
   const { data: earned, loading: earnedLoading, error: earnedError } = useCollection<Earned>(earnedQuery);
+  const { data: prevBudgets, loading: prevBudgetsLoading } = useCollection<Budget>(prevBudgetsRef);
+
+  const canCopyPreviousBudgets = useMemo(() => (prevBudgets || []).length > 0 && (budgets || []).length === 0, [prevBudgets, budgets]);
   
-  const isDataLoading = budgetsLoading || expensesLoading || earnedLoading;
+  const isDataLoading = budgetsLoading || expensesLoading || earnedLoading || prevBudgetsLoading;
   
   const monthlyData: MonthlyData = useMemo(() => ({
     budgets: budgets || [],
@@ -127,6 +141,22 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
     });
   };
 
+  const handleCopyPreviousBudgets = async () => {
+    if (!firestore || !prevBudgets || prevBudgets.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No budgets to copy",
+        description: "There are no budgets from the previous month to copy.",
+      });
+      return;
+    }
+    handleUpdateBudgets(prevBudgets);
+    toast({
+      title: "Budgets Copied",
+      description: "Previous month's budgets have been copied. You can now adjust and save them.",
+    });
+  }
+
   const handleRemoveExpense = (expenseId: string) => {
     if (!firestore) return;
     const expenseRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses', expenseId);
@@ -154,6 +184,8 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
             onUpdateBudgets={handleUpdateBudgets}
             onAddEarned={handleAddEarned}
             onAddExpense={handleAddExpense}
+            onCopyPreviousBudgets={handleCopyPreviousBudgets}
+            canCopyPreviousBudgets={canCopyPreviousBudgets}
           />
 
           <main className="flex-1 p-4 md:p-8 space-y-8">
@@ -164,7 +196,7 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
             ) : (
                 <>
                     <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
-                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8">
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8 h-full">
                     <div className="lg:col-span-3">
                         <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>

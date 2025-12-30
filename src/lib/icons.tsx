@@ -11,6 +11,7 @@ import {
   Briefcase,
   Gift,
   MoreHorizontal,
+  Copy,
 } from 'lucide-react';
 
 export const categoryIcons: { [key: string]: LucideIcon } = {
