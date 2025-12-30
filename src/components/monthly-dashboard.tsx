@@ -195,7 +195,8 @@ export default function MonthlyDashboard({
   }
 
   const handleMigrateData = useCallback(async () => {
-    if (!firestore || !userId) {
+    const migrationTargetUserId = '5HedZohmFrPVoLmmxBFtCzJRrE52';
+    if (!firestore || !migrationTargetUserId) {
       return;
     }
     
@@ -211,7 +212,7 @@ export default function MonthlyDashboard({
             return;
         }
 
-        const newUserMonthsRef = collection(firestore, 'users', userId, 'months');
+        const newUserMonthsRef = collection(firestore, 'users', migrationTargetUserId, 'months');
         const newUserMonthSnapshots = await getDocs(newUserMonthsRef);
 
         if(!newUserMonthSnapshots.empty) {
@@ -230,7 +231,7 @@ export default function MonthlyDashboard({
             const oldBudgetsRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'budgets');
             const budgetsSnapshot = await getDocs(oldBudgetsRef);
             budgetsSnapshot.forEach(budgetDoc => {
-                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'budgets', budgetDoc.id);
+                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'budgets', budgetDoc.id);
                 batch.set(newDocRef, budgetDoc.data());
                 batch.delete(budgetDoc.ref);
             });
@@ -238,7 +239,7 @@ export default function MonthlyDashboard({
             const oldExpensesRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'expenses');
             const expensesSnapshot = await getDocs(oldExpensesRef);
             expensesSnapshot.forEach(expenseDoc => {
-                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'expenses', expenseDoc.id);
+                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'expenses', expenseDoc.id);
                 batch.set(newDocRef, expenseDoc.data());
                 batch.delete(expenseDoc.ref);
             });
@@ -246,7 +247,7 @@ export default function MonthlyDashboard({
             const oldEarnedRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'earned');
             const earnedSnapshot = await getDocs(oldEarnedRef);
             earnedSnapshot.forEach(earnedDoc => {
-                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'earned', earnedDoc.id);
+                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'earned', earnedDoc.id);
                 batch.set(newDocRef, earnedDoc.data());
                 batch.delete(earnedDoc.ref);
             });
@@ -262,7 +263,7 @@ export default function MonthlyDashboard({
     } finally {
         onMigrationCompleted();
     }
-  }, [firestore, userId, onMigrationCompleted, toast]);
+  }, [firestore, onMigrationCompleted, toast]);
 
   useEffect(() => {
     if (triggerMigration && firestore && userId && !isDataLoading) {
@@ -293,7 +294,7 @@ export default function MonthlyDashboard({
           />
 
           <main className="flex-1 p-4 md:p-8 space-y-8">
-            {isDataLoading && triggerMigration ? (
+            {isDataLoading && !triggerMigration ? (
                 <div className="flex flex-1 items-center justify-center p-4 md:p-8">
                     <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
                 </div>
@@ -319,3 +320,5 @@ export default function MonthlyDashboard({
       </div>
   );
 }
+
+    
