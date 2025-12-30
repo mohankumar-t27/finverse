@@ -48,7 +48,7 @@ export default function BudgetSetupDialog({ budgets: initialBudgets, onUpdateBud
             Set Budgets
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md flex flex-col h-[70vh]">
           <DialogHeader>
             <DialogTitle>Set Monthly Budgets</DialogTitle>
             <DialogDescription>
@@ -126,46 +126,50 @@ function BudgetForm({ initialBudgets, onUpdateBudgets, setIsOpen, className }: B
   };
 
   return (
-    <div className={className}>
-      <ScrollArea className="max-h-[50vh] pr-4">
-        <div className="space-y-4 py-4">
-          {budgets.map((budget) => {
-            const Icon = getCategoryIcon(budget.category);
-            return (
-              <div key={budget.category} className="flex items-center gap-3">
-                <Icon className="h-5 w-5 text-muted-foreground" />
-                <Label htmlFor={`budget-${budget.category}`} className="flex-1 whitespace-nowrap">
-                  {budget.category}
-                </Label>
-                <Input
-                  id={`budget-${budget.category}`}
-                  type="number"
-                  value={budget.budget}
-                  onChange={(e) => handleBudgetChange(budget.category, e.target.value)}
-                  className="w-28"
-                />
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleRemoveCategory(budget.category)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )
-          })}
-        </div>
-      </ScrollArea>
-      <div className="flex items-center gap-2 pt-4">
-        <Input 
-          placeholder="New category name"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAddNewCategory()}
-        />
-        <Button onClick={handleAddNewCategory} variant="outline">
-          <Plus className="h-4 w-4 mr-2"/>
-          Add
-        </Button>
+    <div className={cn("flex-1 flex flex-col min-h-0", className)}>
+      <div className="flex-1 overflow-auto -mx-6 px-6">
+        <ScrollArea className="h-full pr-4">
+            <div className="space-y-4 py-4">
+            {budgets.map((budget) => {
+                const Icon = getCategoryIcon(budget.category);
+                return (
+                <div key={budget.category} className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor={`budget-${budget.category}`} className="flex-1 whitespace-nowrap">
+                    {budget.category}
+                    </Label>
+                    <Input
+                    id={`budget-${budget.category}`}
+                    type="number"
+                    value={budget.budget}
+                    onChange={(e) => handleBudgetChange(budget.category, e.target.value)}
+                    className="w-28"
+                    />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleRemoveCategory(budget.category)}>
+                    <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+                )
+            })}
+            </div>
+        </ScrollArea>
       </div>
-      <div className="pt-4">
-        <Button onClick={handleSaveChanges} className="w-full">Save Changes</Button>
+      <div className="flex-shrink-0 pt-4">
+        <div className="flex items-center gap-2">
+            <Input 
+            placeholder="New category name"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddNewCategory()}
+            />
+            <Button onClick={handleAddNewCategory} variant="outline">
+            <Plus className="h-4 w-4 mr-2"/>
+            Add
+            </Button>
+        </div>
+        <div className="pt-4">
+            <Button onClick={handleSaveChanges} className="w-full">Save Changes</Button>
+        </div>
       </div>
     </div>
   )
