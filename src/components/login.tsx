@@ -17,7 +17,8 @@ export default function Login() {
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
-      if ((error as any).code === 'auth/cancelled-popup-request') {
+      const errorCode = (error as any).code;
+      if (errorCode === 'auth/cancelled-popup-request' || errorCode === 'auth/popup-closed-by-user') {
         toast({
             title: 'Sign-in cancelled',
             description: 'You closed the sign-in window before completing the process.',
@@ -25,6 +26,11 @@ export default function Login() {
         });
       } else {
         console.error('Error signing in with Google: ', error);
+        toast({
+            title: 'Sign-in Error',
+            description: 'An unexpected error occurred during sign-in. Please try again.',
+            variant: 'destructive',
+        });
       }
     }
   };
