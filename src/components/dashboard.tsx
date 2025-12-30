@@ -5,7 +5,12 @@ import { format } from 'date-fns';
 import Header from './header';
 import MonthlyDashboard from './monthly-dashboard';
 
-export default function Dashboard() {
+interface DashboardProps {
+  triggerMigration: boolean;
+  onMigrationCompleted: () => void;
+}
+
+export default function Dashboard({ triggerMigration, onMigrationCompleted }: DashboardProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
@@ -14,6 +19,8 @@ export default function Dashboard() {
         key={format(selectedDate, 'yyyy-MM')}
         selectedDate={selectedDate}
         onSelectedDateChange={setSelectedDate}
+        triggerMigration={triggerMigration}
+        onMigrationCompleted={onMigrationCompleted}
       />
     </div>
   );

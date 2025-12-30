@@ -19,7 +19,6 @@ interface HeaderProps {
   onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
   onCopyPreviousBudgets: () => void;
   canCopyPreviousBudgets: boolean;
-  onMigrateData: () => void;
 }
 
 export default function Header({ 
@@ -31,7 +30,6 @@ export default function Header({
   onAddExpense,
   onCopyPreviousBudgets,
   canCopyPreviousBudgets,
-  onMigrateData,
 }: HeaderProps) {
   const { user } = useAuth();
   return (
@@ -58,7 +56,7 @@ export default function Header({
             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
             <div className="flex items-center gap-2">
                 <ThemeToggle />
-                { user && <UserNav user={user} onMigrateData={onMigrateData} /> }
+                { user && <UserNav user={user} /> }
             </div>
         </div>
       </div>
