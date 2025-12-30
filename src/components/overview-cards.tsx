@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,11 +24,11 @@ type CardVisibility = {
 
 export default function OverviewCards({ totalBudget, totalSpent, totalEarned }: OverviewCardsProps) {
   const [visibilities, setVisibilities] = useState<CardVisibility>({
-    income: true,
-    budget: true,
+    income: false,
+    budget: false,
     spent: true,
     remaining: true,
-    savings: true,
+    savings: false,
   });
   
   const remainingFromBudget = totalBudget - totalSpent;
