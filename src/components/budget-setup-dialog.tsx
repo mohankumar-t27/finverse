@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 
 interface BudgetSetupDialogProps {
   budgets: Budget[];
-  onUpdateBudgets: (budgets: Budget[]) => void;
+  onUpdateBudgets: (updatedBudgets: Budget[], originalCategories: string[]) => void;
   onCopyPreviousBudgets: () => void;
   canCopyPreviousBudgets: boolean;
 }
@@ -47,12 +47,16 @@ export default function BudgetSetupDialog({
 
   const showCopyButton = canCopyPreviousBudgets && initialBudgets.length === 0;
 
+  // Keep track of the original categories to detect deletions
+  const originalCategories = initialBudgets.map(b => b.category);
+
   const formProps = {
     initialBudgets,
     onUpdateBudgets,
     onCopyPreviousBudgets,
     showCopyButton,
     setIsOpen,
+    originalCategories,
   };
 
   if (isDesktop) {
@@ -103,7 +107,8 @@ export default function BudgetSetupDialog({
 
 interface BudgetFormProps {
   initialBudgets: Budget[];
-  onUpdateBudgets: (budgets: Budget[]) => void;
+  onUpdateBudgets: (updatedBudgets: Budget[], originalCategories: string[]) => void;
+  originalCategories: string[];
   onCopyPreviousBudgets: () => void;
   showCopyButton: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -113,6 +118,7 @@ interface BudgetFormProps {
 function BudgetForm({ 
   initialBudgets, 
   onUpdateBudgets, 
+  originalCategories,
   onCopyPreviousBudgets,
   showCopyButton,
   setIsOpen, 
@@ -146,7 +152,7 @@ function BudgetForm({
   };
   
   const handleSaveChanges = () => {
-    onUpdateBudgets(budgets);
+    onUpdateBudgets(budgets, originalCategories);
     setIsOpen(false);
   };
   
@@ -184,7 +190,7 @@ function BudgetForm({
                     className="w-28"
                     />
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleRemoveCategory(budget.category)}>
-                    <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                 </div>
                 )

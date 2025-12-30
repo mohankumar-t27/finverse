@@ -127,13 +127,24 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
     });
   };
 
-  const handleUpdateBudgets = (updatedBudgets: Budget[]) => {
+  const handleUpdateBudgets = (updatedBudgets: Budget[], originalCategories: string[]) => {
     if (!firestore) return;
     
+    // Update or add new budgets
     updatedBudgets.forEach(budget => {
         const budgetRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets', budget.category);
         setDocumentNonBlocking(budgetRef, budget, { merge: true });
     });
+
+    // Find and delete removed budgets
+    const updatedCategories = updatedBudgets.map(b => b.category);
+    const categoriesToDelete = originalCategories.filter(c => !updatedCategories.includes(c));
+    
+    categoriesToDelete.forEach(category => {
+        const budgetRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets', category);
+        deleteDocumentNonBlocking(budgetRef);
+    });
+
 
     toast({
       title: 'Budgets Updated',
@@ -150,7 +161,8 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
       });
       return;
     }
-    handleUpdateBudgets(prevBudgets);
+    // Pass an empty array for originalCategories since we are only adding/creating
+    handleUpdateBudgets(prevBudgets, []);
     toast({
       title: "Budgets Copied",
       description: "Previous month's budgets have been copied. You can now adjust and save them.",
@@ -197,10 +209,10 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
                 <>
                     <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 mt-8 h-full">
-                    <div className="lg:col-span-3">
+                    <div className="lg:col-span-3 h-full">
                         <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 h-full">
                         <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
                     </div>

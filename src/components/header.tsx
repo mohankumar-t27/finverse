@@ -14,7 +14,7 @@ interface HeaderProps {
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
   budgets: Budget[];
-  onUpdateBudgets: (budgets: Budget[]) => void;
+  onUpdateBudgets: (updatedBudgets: Budget[], originalCategories: string[]) => void;
   onAddEarned: (earned: Omit<Earned, 'id' | 'date'>) => void;
   onAddExpense: (expense: Omit<Expense, 'id' | 'date'>) => void;
   onCopyPreviousBudgets: () => void;
