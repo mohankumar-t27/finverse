@@ -39,7 +39,7 @@ export default function Header({
         <div className="flex items-center gap-2">
           <IndianRupee className="h-6 w-6 text-primary" />
           <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl md:text-xl">
-            MokiSpends
+            ExpenseWise
           </h1>
         </div>
       </div>
