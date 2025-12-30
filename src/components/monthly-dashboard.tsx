@@ -223,7 +223,7 @@ export default function MonthlyDashboard({
                     <div className="lg:col-span-3 h-full">
                         <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
-                    <div className="lg:col-soan-2 h-full">
+                    <div className="lg:col-span-2 h-full">
                         <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
                     </div>
