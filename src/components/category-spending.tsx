@@ -35,7 +35,7 @@ export default function CategorySpending({ budgets, expenses }: CategorySpending
         <CardDescription>Your spending progress for each category.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px] pr-4">
+        <ScrollArea className="max-h-[350px] pr-4">
           <div className="space-y-6">
             {categorySpending.length > 0 ? categorySpending.map(item => {
               const Icon = getCategoryIcon(item.category);
@@ -54,7 +54,7 @@ export default function CategorySpending({ budgets, expenses }: CategorySpending
                 </div>
               )
             }) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="flex flex-col items-center justify-center h-[200px] text-center">
                 <p className="text-muted-foreground">No budget categories set.</p>
                 <p className="text-sm text-muted-foreground">Click 'Set Budgets' to get started.</p>
               </div>
