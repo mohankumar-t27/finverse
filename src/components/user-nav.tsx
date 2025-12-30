@@ -22,7 +22,7 @@ interface UserNavProps {
 }
 
 export function UserNav({ user }: UserNavProps) {
-    const auth = useAuth();
+    const { auth } = useAuth();
     
     const handleSignOut = () => {
         if (auth) {
