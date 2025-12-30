@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -21,10 +20,11 @@ import MigrationDialog from "./migration-dialog";
 
 interface UserNavProps {
     user: User;
+    handleMigrateData: () => void;
 }
 
-export function UserNav({ user }: UserNavProps) {
-    const { auth } = useAuth();
+export function UserNav({ user, handleMigrateData }: UserNavProps) {
+    const auth = useAuth();
     
     const handleSignOut = () => {
         if (auth) {
@@ -52,9 +52,7 @@ export function UserNav({ user }: UserNavProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-           <MigrationDialog />
-        </DropdownMenuGroup>
+        <MigrationDialog />
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           Log out

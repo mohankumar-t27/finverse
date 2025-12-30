@@ -150,6 +150,7 @@ export default function MigrationDialog() {
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
+      <div vaul-drawer-wrapper="">
         <DialogHeader>
           <DialogTitle>Move User Data</DialogTitle>
           <DialogDescription>
@@ -193,6 +194,7 @@ export default function MigrationDialog() {
         <DialogFooter>
           <Button onClick={handleMigrateData} variant="destructive">Move Data</Button>
         </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
