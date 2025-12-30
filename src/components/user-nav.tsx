@@ -20,10 +20,9 @@ import { signOut, type User } from "firebase/auth";
 
 interface UserNavProps {
     user: User;
-    onMigrateData: () => void;
 }
 
-export function UserNav({ user, onMigrateData }: UserNavProps) {
+export function UserNav({ user }: UserNavProps) {
     const { auth } = useAuth();
     
     const handleSignOut = () => {
@@ -51,12 +50,6 @@ export function UserNav({ user, onMigrateData }: UserNavProps) {
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={onMigrateData}>
-            Migrate Data
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           Log out

@@ -2,12 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Allow the specified user to read/delete the old 'main-user' data for migration
-    match /users/main-user/{document=**} {
-      allow get, list, delete: if request.auth != null && request.auth.uid == '5HedZohmFrPVoLmmxBFtCzJRrE52';
-    }
-
     // Users can only read and write their own data
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;

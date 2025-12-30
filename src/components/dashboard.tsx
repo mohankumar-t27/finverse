@@ -2,15 +2,9 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import Header from './header';
 import MonthlyDashboard from './monthly-dashboard';
 
-interface DashboardProps {
-  triggerMigration: boolean;
-  onMigrationCompleted: () => void;
-}
-
-export default function Dashboard({ triggerMigration, onMigrationCompleted }: DashboardProps) {
+export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
@@ -19,8 +13,6 @@ export default function Dashboard({ triggerMigration, onMigrationCompleted }: Da
         key={format(selectedDate, 'yyyy-MM')}
         selectedDate={selectedDate}
         onSelectedDateChange={setSelectedDate}
-        triggerMigration={triggerMigration}
-        onMigrationCompleted={onMigrationCompleted}
       />
     </div>
   );

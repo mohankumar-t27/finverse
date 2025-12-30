@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { collection, doc, getDocs, orderBy, query, serverTimestamp, writeBatch, deleteDoc } from 'firebase/firestore';
+import { useEffect, useMemo, useState } from 'react';
+import { collection, doc, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { useAuth, useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
@@ -17,15 +17,11 @@ import Header from './header';
 interface MonthlyDashboardProps {
   selectedDate: Date;
   onSelectedDateChange: (date: Date) => void;
-  triggerMigration: boolean;
-  onMigrationCompleted: () => void;
 }
 
 export default function MonthlyDashboard({ 
   selectedDate, 
   onSelectedDateChange,
-  triggerMigration,
-  onMigrationCompleted
 }: MonthlyDashboardProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -194,102 +190,6 @@ export default function MonthlyDashboard({
     });
   }
 
-  const handleMigrateData = useCallback(async () => {
-    const migrationTargetUserId = '5HedZohmFrPVoLmmxBFtCzJRrE52';
-    if (!firestore || !migrationTargetUserId) {
-      onMigrationCompleted();
-      return;
-    }
-    
-    console.log("Starting data migration...");
-    toast({ title: 'Starting data migration...', description: 'Please wait. This may take a moment.' });
-
-    try {
-        const oldUserMonthsRef = collection(firestore, 'users', 'main-user', 'months');
-        const monthSnapshots = await getDocs(oldUserMonthsRef);
-
-        if (monthSnapshots.empty) {
-            console.log("No old data found to migrate.");
-            toast({ title: 'No Data', description: 'No old data found to migrate.' });
-            onMigrationCompleted();
-            return;
-        }
-        
-        // Write batch for creating new data
-        const writeBatch = writeBatch(firestore);
-
-        for (const monthDoc of monthSnapshots.docs) {
-            const monthId = monthDoc.id;
-            
-            const subcollections = ['budgets', 'expenses', 'earned'];
-
-            for (const subcollectionName of subcollections) {
-                const oldSubcollectionRef = collection(firestore, 'users', 'main-user', 'months', monthId, subcollectionName);
-                const dataSnapshot = await getDocs(oldSubcollectionRef);
-                dataSnapshot.forEach(dataDoc => {
-                    const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, subcollectionName, dataDoc.id);
-                    writeBatch.set(newDocRef, dataDoc.data());
-                });
-            }
-        }
-        
-        await writeBatch.commit();
-        console.log("Data successfully copied to new user.");
-        toast({ title: 'Migration: Step 1 Complete', description: 'Data has been copied. Now removing old data.' });
-
-        // Separate process for deletion
-        const deleteBatch = writeBatch(firestore);
-        for (const monthDoc of monthSnapshots.docs) {
-            const monthId = monthDoc.id;
-            
-            const subcollections = ['budgets', 'expenses', 'earned'];
-
-            for (const subcollectionName of subcollections) {
-                const oldSubcollectionRef = collection(firestore, 'users', 'main-user', 'months', monthId, subcollectionName);
-                const dataSnapshot = await getDocs(oldSubcollectionRef);
-                dataSnapshot.forEach(dataDoc => {
-                   deleteBatch.delete(dataDoc.ref);
-                });
-            }
-             // Delete the month document itself after its subcollections are cleared
-            deleteBatch.delete(monthDoc.ref);
-        }
-
-        // Finally, delete the 'main-user' document itself
-        const oldUserDocRef = doc(firestore, 'users', 'main-user');
-        // This won't be in the batch, as we need to ensure subcollections are gone first.
-        // It's often better to delete subcollections via a Cloud Function for safety,
-        // but for this client-side script, we delete what we can.
-        // The document will be empty after this.
-        
-        await deleteBatch.commit();
-        console.log("Old data successfully deleted.");
-        
-        // Final deletion of the now-empty main-user doc.
-        try {
-            await deleteDoc(oldUserDocRef);
-            console.log("main-user document deleted.");
-        } catch (e) {
-            console.warn("Could not delete the main-user document, it might already be gone or have lingering subcollections not handled here.", e);
-        }
-
-        toast({ title: 'Migration Complete!', description: 'Your data has been successfully moved. Please refresh the page to see the changes.' });
-
-    } catch (error: any) {
-        console.error("Migration failed:", error);
-        toast({ variant: 'destructive', title: 'Migration Failed', description: error.message || 'Could not migrate your data. Check the console for details.' });
-    } finally {
-        onMigrationCompleted();
-    }
-  }, [firestore, onMigrationCompleted, toast]);
-
-  useEffect(() => {
-    if (triggerMigration && firestore && userId && !isDataLoading) {
-      // Automatic migration logic is removed. It's manual via button.
-    }
-  }, [triggerMigration, firestore, userId, isDataLoading, handleMigrateData]);
-
-  
   if (budgetsError || expensesError || earnedError) {
     return (
          <div className="flex items-center justify-center min-h-screen">
@@ -309,11 +209,10 @@ export default function MonthlyDashboard({
             onAddExpense={handleAddExpense}
             onCopyPreviousBudgets={handleCopyPreviousBudgets}
             canCopyPreviousBudgets={canCopyPreviousBudgets}
-            onMigrateData={handleMigrateData}
           />
 
           <main className="flex-1 p-4 md:p-8 space-y-8">
-            {isDataLoading && !triggerMigration ? (
+            {isDataLoading ? (
                 <div className="flex flex-1 items-center justify-center p-4 md:p-8">
                     <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
                 </div>
