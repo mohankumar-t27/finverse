@@ -1,13 +1,12 @@
-// This file is a placeholder to resolve module not found errors.
-// It will be properly implemented in the next steps.
-
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, type Auth, type User } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
-import FirebaseProvider, { useFirebase, useFirebaseApp, useFirestore, useAuth as useFirebaseAuth } from './provider';
+import FirebaseProvider from './provider';
+import FirebaseClientProvider from './client-provider';
+import { useFirebase, useFirebaseApp, useFirestore, useAuth as useFirebaseAuth } from './provider';
 import { useState, useEffect } from 'react';
 
 
@@ -29,14 +28,14 @@ function initializeFirebase() {
 }
 
 function useAuth() {
+  const firebaseAuth = useFirebaseAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const firebaseAuth = useFirebaseAuth();
 
   useEffect(() => {
     if (!firebaseAuth) {
-      // Firebase might not be initialized yet
-      setLoading(false);
+      // Firebase might not be initialized yet by the provider
+      setLoading(true);
       return;
     }
 
@@ -48,12 +47,13 @@ function useAuth() {
     return () => unsubscribe();
   }, [firebaseAuth]);
 
-  return { user, loading };
+  return { user, loading, auth: firebaseAuth };
 }
 
 export {
   initializeFirebase,
   FirebaseProvider,
+  FirebaseClientProvider,
   useCollection,
   useDoc,
   useFirebase,

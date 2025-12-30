@@ -3,7 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
-import FirebaseClientProvider from '@/firebase/provider';
+import FirebaseClientProvider from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'MokiSpends',

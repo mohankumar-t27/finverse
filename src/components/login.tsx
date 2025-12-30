@@ -2,7 +2,7 @@
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Button } from './ui/button';
-import { useAuth } from '@/firebase/provider';
+import { useAuth } from '@/firebase';
 import { IndianRupee } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
 
