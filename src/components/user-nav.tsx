@@ -17,18 +17,18 @@ import {
 import { useAuth } from "@/firebase";
 import { signOut, type User } from "firebase/auth";
 import MigrationDialog from "./migration-dialog";
+import { Move } from "lucide-react";
 
 interface UserNavProps {
     user: User;
-    handleMigrateData: () => void;
 }
 
-export function UserNav({ user, handleMigrateData }: UserNavProps) {
-    const auth = useAuth();
+export function UserNav({ user }: UserNavProps) {
+    const { auth } = useAuth();
     
     const handleSignOut = () => {
         if (auth) {
-            signOut(auth);
+            signOut(auth).catch(console.error);
         }
     }
 
@@ -49,10 +49,18 @@ export function UserNav({ user, handleMigrateData }: UserNavProps) {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
+            <p className="text-xs leading-none text-muted-foreground pt-1">
+              <span className="font-semibold">UID:</span> {user.uid}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <MigrationDialog />
+          <MigrationDialog>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Move className="mr-2 h-4 w-4" />
+                <span>Data Migration</span>
+            </DropdownMenuItem>
+          </MigrationDialog>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           Log out
