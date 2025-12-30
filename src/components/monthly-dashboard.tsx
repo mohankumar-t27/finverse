@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { collection, doc, getDocs, orderBy, query, serverTimestamp } from 'firebase/firestore';
-import { useCollection, useFirestore } from '@/firebase';
+import { collection, doc, getDocs, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { useAuth, useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
 import OverviewCards from '@/components/overview-cards';
@@ -22,6 +22,8 @@ interface MonthlyDashboardProps {
 export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }: MonthlyDashboardProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user } = useAuth();
+  const userId = user?.uid;
 
   const currentMonthKey = useMemo(() => {
     const zonedDate = toZonedTime(selectedDate, 'UTC');
@@ -36,26 +38,26 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
 
   // Firestore listeners
   const budgetsRef = useMemo(() => {
-      if (!firestore) return null;
-      return collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets');
-  }, [firestore, currentMonthKey]);
+      if (!firestore || !userId) return null;
+      return collection(firestore, 'users', userId, 'months', currentMonthKey, 'budgets');
+  }, [firestore, userId, currentMonthKey]);
 
   const expensesQuery = useMemo(() => {
-      if (!firestore) return null;
-      const expensesRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses');
+      if (!firestore || !userId) return null;
+      const expensesRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'expenses');
       return query(expensesRef, orderBy('date', 'desc'));
-  }, [firestore, currentMonthKey]);
+  }, [firestore, userId, currentMonthKey]);
   
   const earnedQuery = useMemo(() => {
-      if (!firestore) return null;
-      const earnedRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'earned');
+      if (!firestore || !userId) return null;
+      const earnedRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'earned');
       return query(earnedRef, orderBy('date', 'desc'));
-  }, [firestore, currentMonthKey]);
+  }, [firestore, userId, currentMonthKey]);
   
   const prevBudgetsRef = useMemo(() => {
-      if (!firestore) return null;
-      return collection(firestore, 'users', 'main-user', 'months', previousMonthKey, 'budgets');
-  }, [firestore, previousMonthKey]);
+      if (!firestore || !userId) return null;
+      return collection(firestore, 'users', userId, 'months', previousMonthKey, 'budgets');
+  }, [firestore, userId, previousMonthKey]);
 
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
@@ -77,9 +79,9 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
   const totalEarned = useMemo(() => (earned || []).reduce((sum, e) => sum + e.amount, 0), [earned]);
   
   const handleAddExpense = (newExpense: Omit<Expense, 'id' | 'date'>) => {
-    if (!firestore) return;
+    if (!firestore || !userId) return;
     
-    const expensesRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses');
+    const expensesRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'expenses');
     
     const expenseToAdd = {
       ...newExpense,
@@ -110,9 +112,9 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
   };
 
   const handleAddEarned = (newEarned: Omit<Earned, 'id' | 'date'>) => {
-    if (!firestore) return;
+    if (!firestore || !userId) return;
     
-    const earnedRef = collection(firestore, 'users', 'main-user', 'months', currentMonthKey, 'earned');
+    const earnedRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'earned');
     
     const earnedToAdd = {
       ...newEarned,
@@ -128,11 +130,11 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
   };
 
   const handleUpdateBudgets = (updatedBudgets: Budget[], originalCategories: string[]) => {
-    if (!firestore) return;
+    if (!firestore || !userId) return;
     
     // Update or add new budgets
     updatedBudgets.forEach(budget => {
-        const budgetRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets', budget.category);
+        const budgetRef = doc(firestore, 'users', userId, 'months', currentMonthKey, 'budgets', budget.category);
         setDocumentNonBlocking(budgetRef, budget, { merge: true });
     });
 
@@ -141,7 +143,7 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
     const categoriesToDelete = originalCategories.filter(c => !updatedCategories.includes(c));
     
     categoriesToDelete.forEach(category => {
-        const budgetRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'budgets', category);
+        const budgetRef = doc(firestore, 'users', userId, 'months', currentMonthKey, 'budgets', category);
         deleteDocumentNonBlocking(budgetRef);
     });
 
@@ -170,13 +172,70 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
   }
 
   const handleRemoveExpense = (expenseId: string) => {
-    if (!firestore) return;
-    const expenseRef = doc(firestore, 'users', 'main-user', 'months', currentMonthKey, 'expenses', expenseId);
+    if (!firestore || !userId) return;
+    const expenseRef = doc(firestore, 'users', userId, 'months', currentMonthKey, 'expenses', expenseId);
     deleteDocumentNonBlocking(expenseRef);
     toast({
       title: 'Expense Removed',
       description: 'The selected expense has been removed.',
     });
+  }
+
+  const handleMigrateData = async () => {
+    if (!firestore || !userId) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to migrate data.' });
+      return;
+    }
+
+    toast({ title: 'Starting Migration', description: 'Please wait...' });
+
+    try {
+        const batch = writeBatch(firestore);
+        const oldUserMonthsRef = collection(firestore, 'users', 'main-user', 'months');
+        const monthSnapshots = await getDocs(oldUserMonthsRef);
+
+        for (const monthDoc of monthSnapshots.docs) {
+            const monthId = monthDoc.id;
+            
+            // Migrate budgets
+            const oldBudgetsRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'budgets');
+            const newBudgetsRef = collection(firestore, 'users', userId, 'months', monthId, 'budgets');
+            const budgetsSnapshot = await getDocs(oldBudgetsRef);
+            budgetsSnapshot.forEach(doc => {
+                batch.set(doc.ref, { migrated: true }, { merge: true }); // Mark old as migrated
+                const newDocRef = doc(newBudgetsRef, doc.id);
+                batch.set(newDocRef, doc.data());
+            });
+
+            // Migrate expenses
+            const oldExpensesRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'expenses');
+            const newExpensesRef = collection(firestore, 'users', userId, 'months', monthId, 'expenses');
+            const expensesSnapshot = await getDocs(oldExpensesRef);
+            expensesSnapshot.forEach(doc => {
+                batch.set(doc.ref, { migrated: true }, { merge: true });
+                const newDocRef = doc(newExpensesRef, doc.id);
+                batch.set(newDocRef, doc.data());
+            });
+            
+            // Migrate earned
+            const oldEarnedRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'earned');
+            const newEarnedRef = collection(firestore, 'users', userId, 'months', monthId, 'earned');
+            const earnedSnapshot = await getDocs(oldEarnedRef);
+            earnedSnapshot.forEach(doc => {
+                batch.set(doc.ref, { migrated: true }, { merge: true });
+                const newDocRef = doc(newEarnedRef, doc.id);
+                batch.set(newDocRef, doc.data());
+            });
+        }
+        
+        await batch.commit();
+
+        toast({ title: 'Migration Complete!', description: 'Your existing data has been moved to your account.' });
+
+    } catch (error) {
+        console.error("Migration failed:", error);
+        toast({ variant: 'destructive', title: 'Migration Failed', description: 'Could not migrate data. Check console for details.' });
+    }
   }
   
   if (budgetsError || expensesError || earnedError) {
@@ -198,6 +257,7 @@ export default function MonthlyDashboard({ selectedDate, onSelectedDateChange }:
             onAddExpense={handleAddExpense}
             onCopyPreviousBudgets={handleCopyPreviousBudgets}
             canCopyPreviousBudgets={canCopyPreviousBudgets}
+            onMigrateData={handleMigrateData}
           />
 
           <main className="flex-1 p-4 md:p-8 space-y-8">

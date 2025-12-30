@@ -1,5 +1,3 @@
-// NOTE: This file is a placeholder to resolve module not found errors.
-// It will be properly implemented in the next steps.
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
@@ -37,8 +35,11 @@ export default function FirebaseProvider({ children }: { children: React.ReactNo
   const memoizedValue = useMemo(() => firebase, [firebase]);
 
   if (!memoizedValue) {
-    // You can return a loader here
-    return <div>Loading Firebase...</div>;
+    return (
+        <div className="flex items-center justify-center min-h-screen">
+            <p>Initializing Firebase...</p>
+        </div>
+    );
   }
 
   return (
