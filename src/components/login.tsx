@@ -7,15 +7,19 @@ import { IndianRupee } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
 
 export default function Login() {
-  const { auth } = useAuth();
+  const { auth, loading } = useAuth();
 
   const handleGoogleSignIn = async () => {
-    if (!auth) return;
+    if (!auth || loading) return;
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Error signing in with Google: ', error);
+      // It's common for this error to be thrown if the user closes the popup.
+      // We can safely ignore it in the console.
+      if ((error as any).code !== 'auth/cancelled-popup-request') {
+        console.error('Error signing in with Google: ', error);
+      }
     }
   };
 
@@ -34,8 +38,8 @@ export default function Login() {
                         <p className="text-muted-foreground mb-8 text-base">
                             Track and manage your monthly expenses with ease.
                         </p>
-                        <Button onClick={handleGoogleSignIn} className="w-full">
-                            Sign in with Google
+                        <Button onClick={handleGoogleSignIn} className="w-full" disabled={loading}>
+                            {loading ? 'Initializing...' : 'Sign in with Google'}
                         </Button>
                     </div>
                 </div>
