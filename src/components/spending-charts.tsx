@@ -53,6 +53,8 @@ export default function SpendingCharts({ budgets, expenses }: SpendingChartsProp
 
   }, [expenses]);
 
+  const noData = budgets.length === 0 && expenses.length === 0;
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -60,47 +62,68 @@ export default function SpendingCharts({ budgets, expenses }: SpendingChartsProp
         <CardDescription>A visual breakdown of your finances.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="budget-vs-actual">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="budget-vs-actual">Budget vs. Actual</TabsTrigger>
-            <TabsTrigger value="distribution">Distribution</TabsTrigger>
-          </TabsList>
-          <TabsContent value="budget-vs-actual">
-            <ChartContainer config={chartConfig} className="min-h-[200px] w-full mt-4">
-              <BarChart accessibilityLayer data={chartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="category"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                  interval={0}
-                />
-                <YAxis tickFormatter={(value) => formatCurrency(value as number)} />
-                <ChartTooltip
-                  content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)}/>}
-                />
-                <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
-                <Bar dataKey="spent" fill="var(--color-spent)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </TabsContent>
-          <TabsContent value="distribution">
-            <ChartContainer config={{}} className="min-h-[200px] w-full aspect-square mt-4">
-              <PieChart>
-                 <ChartTooltip
-                  content={<ChartTooltipContent hideLabel nameKey="name" formatter={(value) => formatCurrency(value as number)}/>}
-                />
-                <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
-                   {pieChartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={PIE_CHART_COLORS[index % PIE_CHART_COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ChartContainer>
-          </TabsContent>
-        </Tabs>
+        {noData ? (
+          <div className="flex flex-col items-center justify-center h-[240px] text-center">
+            <p className="text-muted-foreground">No spending data to analyze.</p>
+            <p className="text-sm text-muted-foreground">Add budgets and expenses to see your charts.</p>
+          </div>
+        ) : (
+          <Tabs defaultValue="budget-vs-actual">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="budget-vs-actual">Budget vs. Actual</TabsTrigger>
+              <TabsTrigger value="distribution">Distribution</TabsTrigger>
+            </TabsList>
+            <TabsContent value="budget-vs-actual">
+                {chartData.length > 0 ? (
+                    <ChartContainer config={chartConfig} className="min-h-[200px] w-full mt-4">
+                    <BarChart accessibilityLayer data={chartData}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                        dataKey="category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                        interval={0}
+                        />
+                        <YAxis tickFormatter={(value) => formatCurrency(value as number)} />
+                        <ChartTooltip
+                        content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)}/>}
+                        />
+                        <Bar dataKey="budget" fill="var(--color-budget)" radius={4} />
+                        <Bar dataKey="spent" fill="var(--color-spent)" radius={4} />
+                    </BarChart>
+                    </ChartContainer>
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-[240px] text-center">
+                        <p className="text-muted-foreground">No budgets set.</p>
+                        <p className="text-sm text-muted-foreground">Add budgets to compare against spending.</p>
+                    </div>
+                )}
+            </TabsContent>
+            <TabsContent value="distribution">
+                {pieChartData.length > 0 ? (
+                    <ChartContainer config={{}} className="min-h-[200px] w-full aspect-square mt-4">
+                    <PieChart>
+                        <ChartTooltip
+                        content={<ChartTooltipContent hideLabel nameKey="name" formatter={(value) => formatCurrency(value as number)}/>}
+                        />
+                        <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                        {pieChartData.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={PIE_CHART_COLORS[index % PIE_CHART_COLORS.length]} />
+                        ))}
+                        </Pie>
+                    </PieChart>
+                    </ChartContainer>
+                ) : (
+                     <div className="flex flex-col items-center justify-center h-[240px] text-center">
+                        <p className="text-muted-foreground">No expenses recorded.</p>
+                        <p className="text-sm text-muted-foreground">Add expenses to see your spending distribution.</p>
+                    </div>
+                )}
+            </TabsContent>
+          </Tabs>
+        )}
       </CardContent>
     </Card>
   );
