@@ -19,11 +19,9 @@ export default function Login() {
     } catch (error) {
       const errorCode = (error as any).code;
       if (errorCode === 'auth/cancelled-popup-request' || errorCode === 'auth/popup-closed-by-user') {
-        toast({
-            title: 'Sign-in cancelled',
-            description: 'You closed the sign-in window before completing the process.',
-            variant: 'default',
-        });
+        // This is a normal user action, so we don't need to show a toast.
+        // The user intentionally closed the popup.
+        return; 
       } else {
         console.error('Error signing in with Google: ', error);
         toast({
