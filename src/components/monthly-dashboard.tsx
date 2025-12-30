@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { collection, doc, getDocs, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { useAuth, useCollection, useFirestore } from '@/firebase';
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
 import OverviewCards from '@/components/overview-cards';
 import CategorySpending from '@/components/category-spending';
@@ -31,7 +31,6 @@ export default function MonthlyDashboard({
   const firestore = useFirestore();
   const { user } = useAuth();
   const userId = user?.uid;
-  const [migrationAttempted, setMigrationAttempted] = useState(false);
 
   const currentMonthKey = useMemo(() => {
     const zonedDate = toZonedTime(selectedDate, 'UTC');
@@ -44,7 +43,6 @@ export default function MonthlyDashboard({
     return format(zonedDate, 'yyyy-MM');
   }, [selectedDate]);
 
-  // Firestore listeners
   const budgetsRef = useMemo(() => {
       if (!firestore || !userId) return null;
       return collection(firestore, 'users', userId, 'months', currentMonthKey, 'budgets');
@@ -179,7 +177,6 @@ export default function MonthlyDashboard({
       });
       return;
     }
-    // Pass an empty array for originalCategories since we are only adding/creating
     handleUpdateBudgets(prevBudgets, []);
     toast({
       title: "Budgets Copied",
@@ -197,15 +194,11 @@ export default function MonthlyDashboard({
     });
   }
 
-  const handleMigrateData = async () => {
-    if (!firestore || !userId || migrationAttempted) {
-      if (migrationAttempted) onMigrationCompleted();
+  const handleMigrateData = useCallback(async () => {
+    if (!firestore || !userId) {
       return;
     }
     
-    setMigrationAttempted(true); // Mark that we've started trying
-    onMigrationCompleted(); // Signal to parent to not trigger again
-
     console.log("Checking for data to migrate...");
 
     try {
@@ -214,6 +207,7 @@ export default function MonthlyDashboard({
 
         if (monthSnapshots.empty) {
             console.log("No old data found to migrate.");
+            onMigrationCompleted();
             return;
         }
 
@@ -222,6 +216,7 @@ export default function MonthlyDashboard({
 
         if(!newUserMonthSnapshots.empty) {
             console.log("New user already has data. Aborting migration.");
+            onMigrationCompleted();
             return;
         }
 
@@ -232,30 +227,26 @@ export default function MonthlyDashboard({
         for (const monthDoc of monthSnapshots.docs) {
             const monthId = monthDoc.id;
             
-            // Migrate budgets
             const oldBudgetsRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'budgets');
-            const newBudgetsRef = doc(firestore, 'users', userId, 'months', monthId);
             const budgetsSnapshot = await getDocs(oldBudgetsRef);
             budgetsSnapshot.forEach(budgetDoc => {
-                const newDocRef = doc(newBudgetsRef, 'budgets', budgetDoc.id);
+                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'budgets', budgetDoc.id);
                 batch.set(newDocRef, budgetDoc.data());
-                batch.delete(budgetDoc.ref); // Delete old doc
+                batch.delete(budgetDoc.ref);
             });
 
-            // Migrate expenses
             const oldExpensesRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'expenses');
             const expensesSnapshot = await getDocs(oldExpensesRef);
             expensesSnapshot.forEach(expenseDoc => {
-                const newDocRef = doc(newBudgetsRef, 'expenses', expenseDoc.id);
+                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'expenses', expenseDoc.id);
                 batch.set(newDocRef, expenseDoc.data());
                 batch.delete(expenseDoc.ref);
             });
             
-            // Migrate earned
             const oldEarnedRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'earned');
             const earnedSnapshot = await getDocs(oldEarnedRef);
             earnedSnapshot.forEach(earnedDoc => {
-                const newDocRef = doc(newBudgetsRef, 'earned', earnedDoc.id);
+                const newDocRef = doc(firestore, 'users', userId, 'months', monthId, 'earned', earnedDoc.id);
                 batch.set(newDocRef, earnedDoc.data());
                 batch.delete(earnedDoc.ref);
             });
@@ -268,14 +259,16 @@ export default function MonthlyDashboard({
     } catch (error) {
         console.error("Migration failed:", error);
         toast({ variant: 'destructive', title: 'Migration Failed', description: 'Could not migrate your data. Check the console for details.' });
+    } finally {
+        onMigrationCompleted();
     }
-  }
+  }, [firestore, userId, onMigrationCompleted, toast]);
 
   useEffect(() => {
     if (triggerMigration && firestore && userId && !isDataLoading) {
       handleMigrateData();
     }
-  }, [triggerMigration, firestore, userId, isDataLoading]);
+  }, [triggerMigration, firestore, userId, isDataLoading, handleMigrateData]);
 
   
   if (budgetsError || expensesError || earnedError) {
@@ -300,7 +293,7 @@ export default function MonthlyDashboard({
           />
 
           <main className="flex-1 p-4 md:p-8 space-y-8">
-            {isDataLoading && !migrationAttempted ? (
+            {isDataLoading && triggerMigration ? (
                 <div className="flex flex-1 items-center justify-center p-4 md:p-8">
                     <p>Loading data for {format(selectedDate, 'MMMM yyyy')}...</p>
                 </div>
