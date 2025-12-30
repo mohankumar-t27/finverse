@@ -5,9 +5,11 @@ import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
 import { IndianRupee } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
   const { auth, loading } = useAuth();
+  const { toast } = useToast();
 
   const handleGoogleSignIn = async () => {
     if (!auth || loading) return;
@@ -15,9 +17,13 @@ export default function Login() {
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
-      // It's common for this error to be thrown if the user closes the popup.
-      // We can safely ignore it in the console.
-      if ((error as any).code !== 'auth/cancelled-popup-request') {
+      if ((error as any).code === 'auth/cancelled-popup-request') {
+        toast({
+            title: 'Sign-in cancelled',
+            description: 'You closed the sign-in window before completing the process.',
+            variant: 'default',
+        });
+      } else {
         console.error('Error signing in with Google: ', error);
       }
     }
