@@ -14,7 +14,8 @@ export default function Home() {
       {user ? (
         <Dashboard
           key={user.uid}
-          triggerMigration={!migrationCompleted}
+          // The trigger is now manual, so we set this to false
+          triggerMigration={false}
           onMigrationCompleted={() => setMigrationCompleted(true)}
         />
       ) : (
