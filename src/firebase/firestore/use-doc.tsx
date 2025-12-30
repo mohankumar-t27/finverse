@@ -4,17 +4,17 @@ import { onSnapshot, type DocumentReference, type DocumentData, type DocumentSna
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-// A memoization function to prevent re-renders from new doc ref object references
-const useMemoizedDocRef = (docRef: DocumentReference | null) => {
-    return useMemo(() => docRef, [docRef?.path]);
-}
 
 export function useDoc<T>(ref: DocumentReference | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const memoizedRef = useMemoizedDocRef(ref);
+  const memoizedRef = useMemo(() => {
+    if (!ref) return null;
+    return { ref, key: ref.path };
+  }, [ref]);
+
 
   useEffect(() => {
     if (!memoizedRef) {
@@ -26,7 +26,7 @@ export function useDoc<T>(ref: DocumentReference | null) {
     setLoading(true);
 
     const unsubscribe = onSnapshot(
-        memoizedRef, 
+        memoizedRef.ref, 
         (snapshot: DocumentSnapshot<DocumentData>) => {
             if (snapshot.exists()) {
                 setData({ id: snapshot.id, ...snapshot.data() } as unknown as T);
@@ -38,7 +38,7 @@ export function useDoc<T>(ref: DocumentReference | null) {
         (err: Error) => {
             console.error(err);
             const permissionError = new FirestorePermissionError({
-                path: memoizedRef.path,
+                path: memoizedRef.ref.path,
                 operation: 'get',
             });
             errorEmitter.emit('permission-error', permissionError);
@@ -48,7 +48,8 @@ export function useDoc<T>(ref: DocumentReference | null) {
     );
 
     return () => unsubscribe();
-  }, [memoizedRef]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memoizedRef?.key]);
 
   return { data, loading, error };
 }

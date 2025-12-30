@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { useAuth, useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -39,27 +39,11 @@ export default function MonthlyDashboard({
     return format(zonedDate, 'yyyy-MM');
   }, [selectedDate]);
 
-  const budgetsRef = useMemo(() => {
-      if (!firestore || !userId) return null;
-      return collection(firestore, 'users', userId, 'months', currentMonthKey, 'budgets');
-  }, [firestore, userId, currentMonthKey]);
+  const budgetsRef = (firestore && userId) ? collection(firestore, 'users', userId, 'months', currentMonthKey, 'budgets') : null;
+  const expensesQuery = (firestore && userId) ? query(collection(firestore, 'users', userId, 'months', currentMonthKey, 'expenses'), orderBy('date', 'desc')) : null;
+  const earnedQuery = (firestore && userId) ? query(collection(firestore, 'users', userId, 'months', currentMonthKey, 'earned'), orderBy('date', 'desc')) : null;
+  const prevBudgetsRef = (firestore && userId) ? collection(firestore, 'users', userId, 'months', previousMonthKey, 'budgets') : null;
 
-  const expensesQuery = useMemo(() => {
-      if (!firestore || !userId) return null;
-      const expensesRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'expenses');
-      return query(expensesRef, orderBy('date', 'desc'));
-  }, [firestore, userId, currentMonthKey]);
-  
-  const earnedQuery = useMemo(() => {
-      if (!firestore || !userId) return null;
-      const earnedRef = collection(firestore, 'users', userId, 'months', currentMonthKey, 'earned');
-      return query(earnedRef, orderBy('date', 'desc'));
-  }, [firestore, userId, currentMonthKey]);
-  
-  const prevBudgetsRef = useMemo(() => {
-      if (!firestore || !userId) return null;
-      return collection(firestore, 'users', userId, 'months', previousMonthKey, 'budgets');
-  }, [firestore, userId, previousMonthKey]);
 
   const { data: budgets, loading: budgetsLoading, error: budgetsError } = useCollection<Budget>(budgetsRef);
   const { data: expenses, loading: expensesLoading, error: expensesError } = useCollection<Expense>(expensesQuery);
