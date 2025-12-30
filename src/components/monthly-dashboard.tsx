@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { collection, doc, getDocs, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDocs, orderBy, query, serverTimestamp, writeBatch, deleteDoc } from 'firebase/firestore';
 import { useAuth, useCollection, useFirestore } from '@/firebase';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Budget, Earned, Expense, MonthlyData } from '@/lib/types';
@@ -201,7 +201,8 @@ export default function MonthlyDashboard({
       return;
     }
     
-    console.log("Checking for data to migrate...");
+    console.log("Starting data migration...");
+    toast({ title: 'Starting data migration...', description: 'Please wait. This may take a moment.' });
 
     try {
         const oldUserMonthsRef = collection(firestore, 'users', 'main-user', 'months');
@@ -213,43 +214,70 @@ export default function MonthlyDashboard({
             onMigrationCompleted();
             return;
         }
-
-        toast({ title: 'Migrating your data...', description: 'This may take a moment. Please wait.' });
         
-        const batch = writeBatch(firestore);
+        // Write batch for creating new data
+        const writeBatch = writeBatch(firestore);
 
         for (const monthDoc of monthSnapshots.docs) {
             const monthId = monthDoc.id;
             
-            const oldBudgetsRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'budgets');
-            const budgetsSnapshot = await getDocs(oldBudgetsRef);
-            budgetsSnapshot.forEach(budgetDoc => {
-                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'budgets', budgetDoc.id);
-                batch.set(newDocRef, budgetDoc.data());
-            });
+            const subcollections = ['budgets', 'expenses', 'earned'];
 
-            const oldExpensesRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'expenses');
-            const expensesSnapshot = await getDocs(oldExpensesRef);
-            expensesSnapshot.forEach(expenseDoc => {
-                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'expenses', expenseDoc.id);
-                batch.set(newDocRef, expenseDoc.data());
-            });
-            
-            const oldEarnedRef = collection(firestore, 'users', 'main-user', 'months', monthId, 'earned');
-            const earnedSnapshot = await getDocs(oldEarnedRef);
-            earnedSnapshot.forEach(earnedDoc => {
-                const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, 'earned', earnedDoc.id);
-                batch.set(newDocRef, earnedDoc.data());
-            });
+            for (const subcollectionName of subcollections) {
+                const oldSubcollectionRef = collection(firestore, 'users', 'main-user', 'months', monthId, subcollectionName);
+                const dataSnapshot = await getDocs(oldSubcollectionRef);
+                dataSnapshot.forEach(dataDoc => {
+                    const newDocRef = doc(firestore, 'users', migrationTargetUserId, 'months', monthId, subcollectionName, dataDoc.id);
+                    writeBatch.set(newDocRef, dataDoc.data());
+                });
+            }
         }
         
-        await batch.commit();
+        await writeBatch.commit();
+        console.log("Data successfully copied to new user.");
+        toast({ title: 'Migration: Step 1 Complete', description: 'Data has been copied. Now removing old data.' });
 
-        toast({ title: 'Migration Complete!', description: 'Your existing data has been moved to your new account. Please refresh the page.' });
+        // Separate process for deletion
+        const deleteBatch = writeBatch(firestore);
+        for (const monthDoc of monthSnapshots.docs) {
+            const monthId = monthDoc.id;
+            
+            const subcollections = ['budgets', 'expenses', 'earned'];
 
-    } catch (error) {
+            for (const subcollectionName of subcollections) {
+                const oldSubcollectionRef = collection(firestore, 'users', 'main-user', 'months', monthId, subcollectionName);
+                const dataSnapshot = await getDocs(oldSubcollectionRef);
+                dataSnapshot.forEach(dataDoc => {
+                   deleteBatch.delete(dataDoc.ref);
+                });
+            }
+             // Delete the month document itself after its subcollections are cleared
+            deleteBatch.delete(monthDoc.ref);
+        }
+
+        // Finally, delete the 'main-user' document itself
+        const oldUserDocRef = doc(firestore, 'users', 'main-user');
+        // This won't be in the batch, as we need to ensure subcollections are gone first.
+        // It's often better to delete subcollections via a Cloud Function for safety,
+        // but for this client-side script, we delete what we can.
+        // The document will be empty after this.
+        
+        await deleteBatch.commit();
+        console.log("Old data successfully deleted.");
+        
+        // Final deletion of the now-empty main-user doc.
+        try {
+            await deleteDoc(oldUserDocRef);
+            console.log("main-user document deleted.");
+        } catch (e) {
+            console.warn("Could not delete the main-user document, it might already be gone or have lingering subcollections not handled here.", e);
+        }
+
+        toast({ title: 'Migration Complete!', description: 'Your data has been successfully moved. Please refresh the page to see the changes.' });
+
+    } catch (error: any) {
         console.error("Migration failed:", error);
-        toast({ variant: 'destructive', title: 'Migration Failed', description: 'Could not migrate your data. Check the console for details.' });
+        toast({ variant: 'destructive', title: 'Migration Failed', description: error.message || 'Could not migrate your data. Check the console for details.' });
     } finally {
         onMigrationCompleted();
     }
@@ -257,7 +285,7 @@ export default function MonthlyDashboard({
 
   useEffect(() => {
     if (triggerMigration && firestore && userId && !isDataLoading) {
-      handleMigrateData();
+      // Automatic migration logic is removed. It's manual via button.
     }
   }, [triggerMigration, firestore, userId, isDataLoading, handleMigrateData]);
 
@@ -296,7 +324,7 @@ export default function MonthlyDashboard({
                     <div className="lg:col-span-3 h-full">
                         <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
-                    <div className="lg:col-span-2 h-full">
+                    <div className="lg:col-soan-2 h-full">
                         <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
                     </div>
                     </div>
