@@ -1,5 +1,6 @@
+
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export const BackgroundGradientAnimation = ({
@@ -34,11 +35,10 @@ export const BackgroundGradientAnimation = ({
   containerClassName?: string;
 }) => {
   const interactiveRef = useRef<HTMLDivElement>(null);
-
-  const [curX, setCurX] = useState(0);
-  const [curY, setCurY] = useState(0);
-  const [tgX, setTgX] = useState(0);
-  const [tgY, setTgY] = useState(0);
+  const curX = useRef(0);
+  const curY = useRef(0);
+  const tgX = useRef(0);
+  const tgY = useRef(0);
 
   useEffect(() => {
     document.body.style.setProperty(
@@ -60,25 +60,33 @@ export const BackgroundGradientAnimation = ({
   }, [blendingValue, fifthColor, firstColor, fourthColor, gradientBackgroundEnd, gradientBackgroundStart, pointerColor, secondColor, size, thirdColor]);
 
   useEffect(() => {
+    let animationFrameId: number;
+
     function move() {
       if (!interactiveRef.current) {
         return;
       }
-      setCurX(curX + (tgX - curX) / 20);
-      setCurY(curY + (tgY - curY) / 20);
+      curX.current += (tgX.current - curX.current) / 20;
+      curY.current += (tgY.current - curY.current) / 20;
       interactiveRef.current.style.transform = `translate(${Math.round(
-        curX
-      )}px, ${Math.round(curY)}px)`;
+        curX.current
+      )}px, ${Math.round(curY.current)}px)`;
+      animationFrameId = requestAnimationFrame(move);
+    }
+    
+    animationFrameId = requestAnimationFrame(move);
+
+    return () => {
+        cancelAnimationFrame(animationFrameId);
     }
 
-    move();
-  }, [tgX, tgY, curX, curY]);
+  }, []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (interactiveRef.current) {
       const rect = interactiveRef.current.getBoundingClientRect();
-      setTgX(event.clientX - rect.left);
-      setTgY(event.clientY - rect.top);
+      tgX.current = event.clientX - rect.left;
+      tgY.current = event.clientY - rect.top;
     }
   };
 
@@ -174,3 +182,5 @@ export const BackgroundGradientAnimation = ({
     </div>
   );
 };
+
+    
