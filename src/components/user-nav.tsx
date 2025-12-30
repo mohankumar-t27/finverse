@@ -16,15 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/firebase";
 import { signOut, type User } from "firebase/auth";
-import MigrationDialog from "./migration-dialog";
-import { Move } from "lucide-react";
 
 interface UserNavProps {
     user: User;
 }
 
 export function UserNav({ user }: UserNavProps) {
-    const { auth } = useAuth();
+    const auth = useAuth();
     
     const handleSignOut = () => {
         if (auth) {
@@ -54,13 +52,6 @@ export function UserNav({ user }: UserNavProps) {
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-          <MigrationDialog>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Move className="mr-2 h-4 w-4" />
-                <span>Data Migration</span>
-            </DropdownMenuItem>
-          </MigrationDialog>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           Log out

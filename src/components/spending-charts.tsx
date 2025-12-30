@@ -75,6 +75,7 @@ export default function SpendingCharts({ budgets, expenses }: SpendingChartsProp
                   tickMargin={10}
                   axisLine={false}
                   tickFormatter={(value) => value.slice(0, 3)}
+                  interval={0}
                 />
                 <YAxis tickFormatter={(value) => formatCurrency(value as number)} />
                 <ChartTooltip
