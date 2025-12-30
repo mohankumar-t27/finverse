@@ -54,7 +54,7 @@ export default function SpendingCharts({ budgets, expenses }: SpendingChartsProp
   }, [expenses]);
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Spending Analysis</CardTitle>
         <CardDescription>A visual breakdown of your finances.</CardDescription>

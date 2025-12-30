@@ -29,38 +29,40 @@ export default function CategorySpending({ budgets, expenses }: CategorySpending
   }, [budgets, expenses]);
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>Category Spending</CardTitle>
         <CardDescription>Your spending progress for each category.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="max-h-[350px] pr-4">
-          <div className="space-y-6">
-            {categorySpending.length > 0 ? categorySpending.map(item => {
-              const Icon = getCategoryIcon(item.category);
-              return (
-                <div key={item.category}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                       <Icon className="h-4 w-4 text-muted-foreground" />
-                       <span className="font-medium">{item.category}</span>
+      <CardContent className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full pr-4">
+            <div className="space-y-6">
+                {categorySpending.length > 0 ? categorySpending.map(item => {
+                const Icon = getCategoryIcon(item.category);
+                return (
+                    <div key={item.category}>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{item.category}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                        {formatCurrency(item.spent)} / {formatCurrency(item.budget)}
+                        </span>
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      {formatCurrency(item.spent)} / {formatCurrency(item.budget)}
-                    </span>
-                  </div>
-                  <Progress value={item.percentage} />
+                    <Progress value={item.percentage} />
+                    </div>
+                )
+                }) : (
+                <div className="flex flex-col items-center justify-center h-[200px] text-center">
+                    <p className="text-muted-foreground">No budget categories set.</p>
+                    <p className="text-sm text-muted-foreground">Click 'Set Budgets' to get started.</p>
                 </div>
-              )
-            }) : (
-              <div className="flex flex-col items-center justify-center h-[200px] text-center">
-                <p className="text-muted-foreground">No budget categories set.</p>
-                <p className="text-sm text-muted-foreground">Click 'Set Budgets' to get started.</p>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                )}
+            </div>
+            </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
