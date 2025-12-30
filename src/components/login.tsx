@@ -1,64 +1,76 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, User } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
 import { IndianRupee, Loader2 } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function Login() {
-  const { auth, loading: authLoading } = useAuth();
+  const { auth, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isProcessingSignIn, setIsProcessingSignIn] = useState(true);
+  const redirectCheckRef = useRef(false);
 
   useEffect(() => {
-    if (!auth) return;
+    // Only run the redirect check once on initial component mount
+    if (!auth || redirectCheckRef.current) {
+        if (!authLoading) {
+            setIsProcessingSignIn(false);
+        }
+        return;
+    }
 
-    setIsRedirecting(true);
+    redirectCheckRef.current = true;
+    setIsProcessingSignIn(true);
+
     getRedirectResult(auth)
       .then((result) => {
-        if (result) {
-          // User has been redirected back from the sign-in page.
-          // The useAuth hook will handle the user state update.
-        }
+        // If result is not null, it means the user has just been redirected back.
+        // The `useAuth` hook will handle the user state update, so we just need to wait.
+        // If result is null, it means the page was loaded normally.
       })
       .catch((error) => {
-        console.error('Error getting redirect result: ', error);
-        toast({
-            title: 'Sign-in Error',
-            description: 'An unexpected error occurred during sign-in. Please try again.',
-            variant: 'destructive',
-        });
+        // This can happen if the user denies access in the provider's pop-up.
+        // We'll only show a toast for unexpected errors.
+        const errorCode = (error as any).code;
+        if (errorCode !== 'auth/popup-closed-by-user' && errorCode !== 'auth/cancelled-popup-request') {
+            console.error('Error getting redirect result: ', error);
+            toast({
+                title: 'Sign-in Error',
+                description: 'An unexpected error occurred during sign-in. Please try again.',
+                variant: 'destructive',
+            });
+        }
       })
       .finally(() => {
-        setIsRedirecting(false);
+        setIsProcessingSignIn(false);
       });
-  }, [auth, toast]);
+  }, [auth, authLoading, toast]);
 
 
   const handleGoogleSignIn = async () => {
-    if (!auth || authLoading || isRedirecting) return;
+    if (!auth || authLoading || isProcessingSignIn) return;
     
     const provider = new GoogleAuthProvider();
     
     try {
+      setIsProcessingSignIn(true);
       if (isMobile) {
-        setIsRedirecting(true);
         await signInWithRedirect(auth, provider);
+        // The page will redirect, so no need to set processing to false here.
       } else {
         await signInWithPopup(auth, provider);
+        setIsProcessingSignIn(false);
       }
     } catch (error) {
-      setIsRedirecting(false);
       const errorCode = (error as any).code;
-      if (errorCode === 'auth/cancelled-popup-request' || errorCode === 'auth/popup-closed-by-user') {
-        // This is a normal user action, so we don't need to show a toast.
-        return; 
-      } else {
+      // Don't show a toast for user-cancelled sign-in attempts.
+      if (errorCode !== 'auth/cancelled-popup-request' && errorCode !== 'auth/popup-closed-by-user') {
         console.error('Error signing in with Google: ', error);
         toast({
             title: 'Sign-in Error',
@@ -66,10 +78,18 @@ export default function Login() {
             variant: 'destructive',
         });
       }
+       setIsProcessingSignIn(false);
     }
   };
 
-  const isLoading = authLoading || isRedirecting;
+  // The user is authenticated if there's a user object.
+  // The overall loading state depends on the initial auth check AND any sign-in process.
+  const isLoading = authLoading || isProcessingSignIn;
+
+  // Don't render the login page if the user is already signed in
+  if (user) {
+    return null;
+  }
 
   return (
     <BackgroundGradientAnimation>
