@@ -29,7 +29,7 @@ export default function CategorySpending({ budgets, expenses }: CategorySpending
   }, [budgets, expenses]);
 
   return (
-    <Card className="h-full">
+    <Card>
       <CardHeader>
         <CardTitle>Category Spending</CardTitle>
         <CardDescription>Your spending progress for each category.</CardDescription>
