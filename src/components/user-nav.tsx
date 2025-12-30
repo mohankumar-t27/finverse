@@ -47,9 +47,6 @@ export function UserNav({ user }: UserNavProps) {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
-            <p className="text-xs leading-none text-muted-foreground pt-1">
-              <span className="font-semibold">UID:</span> {user.uid}
-            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
