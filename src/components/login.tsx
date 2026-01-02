@@ -3,11 +3,12 @@
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, User } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
-import { IndianRupee, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useEffect, useState, useRef } from 'react';
+import Logo from './logo';
 
 export default function Login() {
   const { auth, user, loading: authLoading } = useAuth();
@@ -91,7 +92,7 @@ export default function Login() {
                  <div className="flex flex-col items-center justify-center min-h-screen">
                     <div className="glass p-8 rounded-lg shadow-lg text-center max-w-md w-full border">
                         <div className="flex justify-center items-center mb-6">
-                            <IndianRupee className="h-10 w-10 text-primary" />
+                            <Logo className="h-10 w-10" />
                             <h1 className="text-3xl font-bold tracking-tight text-foreground ml-2">
                                 FinVerse
                             </h1>

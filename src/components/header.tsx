@@ -9,6 +9,7 @@ import type { Budget, Earned, Expense } from '@/lib/types';
 import { ThemeToggle } from './theme-toggle';
 import { UserNav } from './user-nav';
 import { useAuth } from '@/firebase';
+import Logo from './logo';
 
 interface HeaderProps {
   selectedDate: Date;
@@ -36,7 +37,7 @@ export default function Header({
     <header className="glass sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
       <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
         <div className="flex items-center gap-2">
-          <IndianRupee className="h-6 w-6 text-primary" />
+          <Logo className="h-6 w-6" />
           <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl md:text-xl">
             FinVerse
           </h1>
