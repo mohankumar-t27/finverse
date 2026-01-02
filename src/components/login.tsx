@@ -10,12 +10,25 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { useEffect, useState, useRef } from 'react';
 import Logo from './logo';
 
+const taglines = [
+  "Your monthly spending, simplified.",
+  "Track smart. Spend better.",
+  "Money clarity, every month.",
+  "Manage your money, month by month.",
+  "Know where your money goes."
+];
+
 export default function Login() {
   const { auth, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isProcessingSignIn, setIsProcessingSignIn] = useState(true);
   const redirectCheckRef = useRef(false);
+  const [tagline, setTagline] = useState('');
+
+  useEffect(() => {
+    setTagline(taglines[Math.floor(Math.random() * taglines.length)]);
+  }, []);
 
   useEffect(() => {
     if (!auth || redirectCheckRef.current) {
@@ -98,7 +111,7 @@ export default function Login() {
                             </h1>
                         </div>
                         <p className="text-muted-foreground mb-8 text-base">
-                            Track and manage your monthly expenses with ease.
+                            {tagline}
                         </p>
                         <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
                             {isLoading ? (
