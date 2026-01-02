@@ -11,6 +11,7 @@ import { useEffect, useState, useRef } from 'react';
 import Logo from './logo';
 
 const taglines = [
+  "Track and manage your monthly expenses with ease",
   "Your monthly spending, simplified.",
   "Track smart. Spend better.",
   "Money clarity, every month.",
@@ -109,7 +110,7 @@ export default function Login() {
                             FinVerse
                         </h1>
                     </div>
-                    <p className="text-muted-foreground mb-8 text-base h-10 flex items-center justify-center">
+                    <p className="text-muted-foreground mb-8 text-base h-12 flex items-center justify-center">
                         {tagline}
                     </p>
                     <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
