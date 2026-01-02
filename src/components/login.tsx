@@ -102,26 +102,24 @@ export default function Login() {
     <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center text-white font-bold px-4 pointer-events-none text-3xl text-center md:text-4xl lg:text-7xl">
             <div className="pointer-events-auto">
-                 <div className="flex flex-col items-center justify-center min-h-screen">
-                    <div className="glass p-8 rounded-lg shadow-lg text-center max-w-md w-full border">
-                        <div className="flex justify-center items-center mb-6">
-                            <Logo className="h-10 w-10" />
-                            <h1 className="text-3xl font-bold tracking-tight text-foreground ml-2">
-                                FinVerse
-                            </h1>
-                        </div>
-                        <p className="text-muted-foreground mb-8 text-base h-10 flex items-center justify-center">
-                            {tagline}
-                        </p>
-                        <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Please wait...
-                                </>
-                            ) : 'Sign in with Google'}
-                        </Button>
+                 <div className="glass p-8 rounded-lg shadow-lg text-center w-full max-w-sm border">
+                    <div className="flex justify-center items-center mb-6">
+                        <Logo className="h-10 w-10" />
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground ml-2">
+                            FinVerse
+                        </h1>
                     </div>
+                    <p className="text-muted-foreground mb-8 text-base h-10 flex items-center justify-center">
+                        {tagline}
+                    </p>
+                    <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Please wait...
+                            </>
+                        ) : 'Sign in with Google'}
+                    </Button>
                 </div>
             </div>
         </div>
