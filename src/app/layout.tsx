@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import FirebaseClientProvider from '@/firebase/client-provider';
+import Footer from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'FinVerse',
@@ -26,7 +27,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={cn('font-body antialiased min-h-screen bg-background')}>
+      <body className={cn('font-body antialiased flex flex-col min-h-screen bg-background')}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -34,7 +35,10 @@ export default function RootLayout({
             disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            {children}
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
             <Toaster />
           </FirebaseClientProvider>
         </ThemeProvider>
