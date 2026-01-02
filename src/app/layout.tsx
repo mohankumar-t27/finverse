@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import FirebaseClientProvider from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'Finverse',
+  title: 'FinVerse',
   description: 'Track and manage your monthly expenses.',
 };
 

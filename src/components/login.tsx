@@ -93,7 +93,7 @@ export default function Login() {
                         <div className="flex justify-center items-center mb-6">
                             <IndianRupee className="h-10 w-10 text-primary" />
                             <h1 className="text-3xl font-bold tracking-tight text-foreground ml-2">
-                                Finverse
+                                FinVerse
                             </h1>
                         </div>
                         <p className="text-muted-foreground mb-8 text-base">
