@@ -9,9 +9,6 @@ import Footer from '@/components/footer';
 export const metadata: Metadata = {
   title: 'FinVerse',
   description: 'Track and manage your monthly expenses.',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
