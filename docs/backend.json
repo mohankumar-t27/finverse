@@ -65,7 +65,7 @@
           "description": "The timestamp when the expense was recorded."
         }
       },
-      "required": ["amount", "category", "description", "date"]
+      "required": ["amount", "category", "date"]
     },
     "earned": {
       "title": "Earned",

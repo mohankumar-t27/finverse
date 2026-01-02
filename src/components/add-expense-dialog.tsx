@@ -46,7 +46,7 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 const expenseSchema = z.object({
   amount: z.coerce.number().positive('Amount must be positive'),
   category: z.string().min(1, 'Category is required'),
-  description: z.string().min(1, 'Description is required'),
+  description: z.string(),
 });
 
 interface AddExpenseDialogProps {
@@ -91,9 +91,9 @@ export default function AddExpenseDialog({ categories, onAddExpense }: AddExpens
         <DrawerContent>
             <DrawerHeader className="text-left">
             <DrawerTitle>Add New Expense</DrawerTitle>
-            <DrawerDescription>
+            <DialogDescription>
                 Enter the details of your expense. Click save when you're done.
-            </DrawerDescription>
+            </DialogDescription>
             </DrawerHeader>
             <ExpenseForm categories={categories} onAddExpense={onAddExpense} setIsOpen={setIsOpen} className="px-4"/>
             <DrawerFooter className="pt-2">
@@ -172,7 +172,7 @@ function ExpenseForm({ categories, onAddExpense, setIsOpen, className }: Expense
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Coffee with friends" {...field} />
               </FormControl>
