@@ -34,13 +34,17 @@ export default function Header({
 }: HeaderProps) {
   const { user } = useAuth();
   return (
-    <header className="glass sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 sm:h-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
-      <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-4">
+    <header className="glass sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
+      <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
         <div className="flex items-center gap-2">
           <IndianRupee className="h-6 w-6 text-primary" />
           <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl md:text-xl">
             ExpenseWise
           </h1>
+        </div>
+        <div className="flex items-center gap-2 sm:hidden">
+            <ThemeToggle />
+            { user && <UserNav user={user} /> }
         </div>
       </div>
       
@@ -55,7 +59,7 @@ export default function Header({
             />
             <AddEarnedDialog onAddEarned={onAddEarned} />
             <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 sm:flex">
                 <ThemeToggle />
                 { user && <UserNav user={user} /> }
             </div>
