@@ -110,7 +110,7 @@ export default function Login() {
                                 FinVerse
                             </h1>
                         </div>
-                        <p className="text-muted-foreground mb-8 text-base">
+                        <p className="text-muted-foreground mb-8 text-base h-10 flex items-center justify-center">
                             {tagline}
                         </p>
                         <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
