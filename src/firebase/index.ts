@@ -33,26 +33,15 @@ function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firebaseAuth) {
-      console.log('[useAuth] Firebase Auth not available yet, setting loading to true.');
+    if (firebaseAuth) {
+      const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+        setUser(user);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+      // If firebaseAuth is not yet available, we are in a loading state.
       setLoading(true);
-      return;
-    }
-    console.log('[useAuth] Subscribing to onAuthStateChanged.');
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) {
-        console.log('[useAuth] onAuthStateChanged: user signed in:', user.uid);
-      } else {
-        console.log('[useAuth] onAuthStateChanged: user signed out.');
-      }
-      setUser(user);
-      setLoading(false);
-      console.log('[useAuth] onAuthStateChanged: finished, setting loading to false.');
-    });
-
-    return () => {
-      console.log('[useAuth] Unsubscribing from onAuthStateChanged.');
-      unsubscribe();
     }
   }, [firebaseAuth]);
 
