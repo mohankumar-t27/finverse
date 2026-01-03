@@ -20,32 +20,43 @@ export default function FirebaseClientProvider({ children }: { children: React.R
   const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
   useEffect(() => {
+    console.log('[FirebaseClientProvider] Mounting and initializing Firebase...');
     const instances = initializeFirebase();
     setFirebase(instances);
 
-    // This effect should only run once on mount to handle the redirect result.
+    console.log('[FirebaseClientProvider] Checking for redirect result...');
     getRedirectResult(instances.auth)
+      .then((result) => {
+        console.log('[FirebaseClientProvider] getRedirectResult success:', result);
+        if (result && result.user) {
+          console.log('[FirebaseClientProvider] User found in redirect result:', result.user.uid);
+        } else {
+          console.log('[FirebaseClientProvider] No user found in redirect result.');
+        }
+      })
       .catch((error) => {
-        // Handle any errors from the redirect result.
-        console.error('Error processing redirect result:', error);
+        console.error('[FirebaseClientProvider] Error processing redirect result:', error);
       })
       .finally(() => {
-        // Whether it succeeds or fails, we're done processing the redirect.
+        console.log('[FirebaseClientProvider] Finished processing redirect. Setting isProcessingRedirect to false.');
         setIsProcessingRedirect(false);
       });
   }, []);
   
-  // Show loader while Firebase is initializing OR while processing a potential redirect.
-  if (!firebase || isProcessingRedirect) {
+  const showLoader = !firebase || isProcessingRedirect;
+
+  if (showLoader) {
+    console.log(`[FirebaseClientProvider] Showing loader because: firebase not ready (${!firebase}), or processing redirect (${isProcessingRedirect})`);
     return (
       <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center text-white font-bold px-4 pointer-events-none text-3xl text-center md:text-4xl lg:text-7xl">
-            <Loader2 className="h-12 w-12 animate-spin" />
+            <Loader2 className="h-16 w-16 animate-spin" />
         </div>
       </BackgroundGradientAnimation>
     );
   }
 
+  console.log('[FirebaseClientProvider] Firebase ready and redirect processed. Rendering children.');
   return (
     <FirebaseProvider
       app={firebase.app}
