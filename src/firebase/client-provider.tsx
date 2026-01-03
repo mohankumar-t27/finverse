@@ -20,17 +20,23 @@ export default function FirebaseClientProvider({ children }: { children: React.R
   const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
 
   useEffect(() => {
+    console.log('[FirebaseClientProvider] Initializing Firebase and checking for redirect result.');
     const instances = initializeFirebase();
     setFirebase(instances);
 
     getRedirectResult(instances.auth)
       .then((result) => {
-        // User is signed in.
+        if (result) {
+          console.log('[FirebaseClientProvider] getRedirectResult success: User credential found.', result.user);
+        } else {
+          console.log('[FirebaseClientProvider] getRedirectResult success: No user credential from redirect.');
+        }
       })
       .catch((error) => {
-        console.error("Error processing redirect result", error);
+        console.error("[FirebaseClientProvider] Error processing redirect result", error);
       })
       .finally(() => {
+        console.log('[FirebaseClientProvider] Finished processing redirect. Rendering children.');
         setIsProcessingRedirect(false);
       });
   }, []);
