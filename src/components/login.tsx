@@ -20,7 +20,7 @@ const taglines = [
 ];
 
 export default function Login() {
-  const { auth, user, loading: authLoading } = useAuth();
+  const { auth } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -55,12 +55,6 @@ export default function Login() {
       setIsSigningIn(false);
     }
   };
-  
-  const isLoading = authLoading || isSigningIn;
-
-  if (user) {
-    return null;
-  }
 
   return (
     <BackgroundGradientAnimation>
@@ -76,8 +70,8 @@ export default function Login() {
                     <p className="text-muted-foreground mb-8 text-base h-12 flex items-center justify-center">
                         {tagline}
                     </p>
-                    <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
-                        {isLoading ? (
+                    <Button onClick={handleGoogleSignIn} className="w-full" disabled={isSigningIn}>
+                        {isSigningIn ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Please wait...
