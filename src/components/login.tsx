@@ -1,6 +1,6 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
 import { Loader2 } from 'lucide-react';
@@ -24,36 +24,11 @@ export default function Login() {
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
   const [tagline, setTagline] = useState('');
 
   useEffect(() => {
     setTagline(taglines[Math.floor(Math.random() * taglines.length)]);
   }, []);
-
-  useEffect(() => {
-    // This effect runs once on mount to handle the redirect result.
-    if (auth) {
-      getRedirectResult(auth)
-        .catch((error) => {
-          // Handle any errors from the redirect result.
-          console.error('Error processing redirect result:', error);
-          toast({
-            title: 'Sign-in Error',
-            description: 'Could not complete sign-in after redirect. Please try again.',
-            variant: 'destructive',
-          });
-        })
-        .finally(() => {
-          // Whether it succeeds or fails, we're done processing the redirect.
-          setIsProcessingRedirect(false);
-        });
-    } else {
-        // If auth is not ready, we are not processing a redirect yet.
-        setIsProcessingRedirect(false);
-    }
-  }, [auth, toast]);
-
 
   const handleGoogleSignIn = async () => {
     if (!auth) return;
@@ -63,13 +38,12 @@ export default function Login() {
     
     try {
       if (isMobile) {
-        // For mobile, we use redirect. The isSigningIn state is reset on page reload.
         await signInWithRedirect(auth, provider);
       } else {
-        // For desktop, we use popup.
         await signInWithPopup(auth, provider);
-        setIsSigningIn(false);
       }
+      // Don't setIsSigningIn(false) here for the popup case, 
+      // as the component will unmount on successful login.
     } catch (error) {
       const errorCode = (error as any).code;
       // Don't show an error for user-cancelled popups
@@ -86,8 +60,8 @@ export default function Login() {
   };
   
   // The main loading state now considers the initial auth check from useAuth,
-  // the redirect processing, and any direct sign-in attempts.
-  const isLoading = authLoading || isProcessingRedirect || isSigningIn;
+  // and any direct sign-in attempts.
+  const isLoading = authLoading || isSigningIn;
 
   // Render nothing if the user is already authenticated
   if (user) {
