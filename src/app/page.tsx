@@ -9,14 +9,12 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    console.log('[Home Page] Auth state change:', { user, loading });
+    // This effect is safe to leave for debugging or can be removed.
   }, [user, loading]);
 
   if (loading) {
-    // The FirebaseClientProvider is already showing a loading screen for the initial load.
-    // This check is mainly for transitions after the initial load.
-    // Returning null is fine as the main loader is handling the UI.
-    console.log('[Home Page] Auth state is loading, rendering nothing yet.');
+    // The FirebaseClientProvider is responsible for the main loading UI.
+    // Returning null here prevents a flash of the login page while auth is resolving.
     return null;
   }
 
