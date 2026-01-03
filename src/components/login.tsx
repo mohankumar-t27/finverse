@@ -44,6 +44,7 @@ export default function Login() {
       }
     } catch (error) {
       const errorCode = (error as any).code;
+      // Don't show an error toast if the user simply closes the popup.
       if (errorCode !== 'auth/cancelled-popup-request' && errorCode !== 'auth/popup-closed-by-user') {
         console.error('Error signing in with Google: ', error);
         toast({

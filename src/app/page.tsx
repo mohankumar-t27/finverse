@@ -3,7 +3,6 @@
 import Dashboard from '@/components/dashboard';
 import Login from '@/components/login';
 import { useAuth } from '@/firebase';
-import { useEffect } from 'react';
 
 export default function Home() {
   const { user, loading } = useAuth();

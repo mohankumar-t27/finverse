@@ -17,32 +17,31 @@ interface FirebaseInstances {
 
 export default function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
   const [firebase, setFirebase] = useState<FirebaseInstances | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [redirectChecked, setRedirectChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const instances = initializeFirebase();
     setFirebase(instances);
 
+    // Use onAuthStateChanged to know when Firebase Auth is ready.
     const unsubscribe = onAuthStateChanged(instances.auth, (user) => {
-      // This is the most reliable point to check for a redirect result.
-      // It ensures Firebase Auth is fully initialized.
-      if (!redirectChecked) {
-        getRedirectResult(instances.auth)
-          .catch((error) => {
-            console.error("Error processing redirect result", error);
-          })
-          .finally(() => {
-            setRedirectChecked(true); 
-            setIsLoading(false); // Now we are ready to render the app.
-          });
-      }
+      // Check for redirect result only once after the initial auth state is determined.
+      getRedirectResult(instances.auth)
+        .catch((error) => {
+          console.error("Error processing redirect result", error);
+        })
+        .finally(() => {
+          // Whether the redirect succeeded or failed, we are now done with the initial load.
+          setLoading(false);
+        });
     });
 
+    // The initial onAuthStateChanged call will handle the redirect,
+    // so we can unsubscribe immediately to prevent it from running again on user state changes here.
     return () => unsubscribe();
-  }, [redirectChecked]);
+  }, []);
 
-  if (!firebase || isLoading || !redirectChecked) {
+  if (!firebase || loading) {
     return (
       <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center">
