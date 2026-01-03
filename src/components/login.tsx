@@ -38,9 +38,12 @@ export default function Login() {
     
     try {
       if (isMobile) {
+        // This initiates the navigation away from the app.
+        // The FirebaseClientProvider will handle catching the result when the user returns.
         await signInWithRedirect(auth, provider);
       } else {
         await signInWithPopup(auth, provider);
+        // After popup sign-in, the onAuthStateChanged in useAuth will handle the update.
       }
     } catch (error) {
       const errorCode = (error as any).code;
@@ -53,6 +56,8 @@ export default function Login() {
             variant: 'destructive',
         });
       }
+      // Only set isSigningIn to false in the catch block for non-redirect scenarios.
+      // For redirects, the page will reload anyway.
       setIsSigningIn(false);
     }
   };

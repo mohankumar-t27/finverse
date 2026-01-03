@@ -8,8 +8,9 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // The FirebaseClientProvider handles the initial loading UI.
-    // Returning null here prevents a flash of the login page while auth is resolving.
+    // The FirebaseClientProvider handles the initial loading screen.
+    // Returning null here prevents any flickering while the auth state is being resolved
+    // by the provider.
     return null;
   }
 

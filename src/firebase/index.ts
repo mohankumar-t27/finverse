@@ -30,7 +30,8 @@ function initializeFirebase() {
 function useAuth() {
   const firebaseAuth = useFirebaseAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  // The client provider handles the initial loading. This hook just reflects the current state.
+  const [loading, setLoading] = useState(!firebaseAuth);
 
   useEffect(() => {
     if (firebaseAuth) {
@@ -39,10 +40,6 @@ function useAuth() {
         setLoading(false);
       });
       return () => unsubscribe();
-    } else {
-      // If firebaseAuth is not yet available, we are in a loading state.
-      // This is handled by the FirebaseClientProvider's loading screen.
-      setLoading(true);
     }
   }, [firebaseAuth]);
 
