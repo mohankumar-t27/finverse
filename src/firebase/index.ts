@@ -41,6 +41,7 @@ function useAuth() {
       return () => unsubscribe();
     } else {
       // If firebaseAuth is not yet available, we are in a loading state.
+      // This is handled by the FirebaseClientProvider's loading screen.
       setLoading(true);
     }
   }, [firebaseAuth]);

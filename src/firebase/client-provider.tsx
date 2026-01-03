@@ -23,21 +23,28 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     const instances = initializeFirebase();
     setFirebase(instances);
 
-    // Use onAuthStateChanged to know when Firebase Auth is ready.
+    // This effect runs once to determine the initial auth state, including
+    // processing any results from a sign-in redirect.
     const unsubscribe = onAuthStateChanged(instances.auth, (user) => {
-      // Check for redirect result only once after the initial auth state is determined.
+      // The first time this runs, it will have the user from a successful redirect
+      // or will be null. Now we know Firebase Auth is initialized.
+      
+      // We explicitly check for a redirect result.
       getRedirectResult(instances.auth)
         .catch((error) => {
           console.error("Error processing redirect result", error);
         })
         .finally(() => {
-          // Whether the redirect succeeded or failed, we are now done with the initial load.
+          // Whether the redirect succeeded, failed, or was not initiated,
+          // the initial auth check is now complete.
           setLoading(false);
         });
+      
+      // We only need this for the initial check, so we unsubscribe immediately.
+      // The `useAuth` hook will have its own persistent `onAuthStateChanged` listener.
+      unsubscribe();
     });
 
-    // The initial onAuthStateChanged call will handle the redirect,
-    // so we can unsubscribe immediately to prevent it from running again on user state changes here.
     return () => unsubscribe();
   }, []);
 
