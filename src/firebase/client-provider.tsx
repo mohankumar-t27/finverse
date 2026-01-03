@@ -27,10 +27,7 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     return (
       <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center text-white font-bold px-4 pointer-events-none text-3xl text-center md:text-4xl lg:text-7xl">
-            <div className="flex items-center">
-                <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-                <p className="text-lg">Initializing...</p>
-            </div>
+            <Loader2 className="h-12 w-12 animate-spin" />
         </div>
       </BackgroundGradientAnimation>
     );
