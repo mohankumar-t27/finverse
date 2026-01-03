@@ -1,13 +1,13 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, User } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 import { BackgroundGradientAnimation } from './ui/background-gradient';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Logo from './logo';
 
 const taglines = [
@@ -23,8 +23,7 @@ export default function Login() {
   const { auth, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const [isProcessingSignIn, setIsProcessingSignIn] = useState(true);
-  const redirectCheckRef = useRef(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const [tagline, setTagline] = useState('');
 
   useEffect(() => {
@@ -32,52 +31,29 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    if (!auth || redirectCheckRef.current) {
-      if (!authLoading) {
-        setIsProcessingSignIn(false);
-      }
-      return;
-    }
-
-    redirectCheckRef.current = true;
-    setIsProcessingSignIn(true);
-
-    getRedirectResult(auth)
-      .then((result) => {
-        // This block will be entered if the user has been redirected from Google.
-        // The `useAuth` hook will handle the user state change automatically if `result` is not null.
-        // We just need to manage the loading state.
-      })
-      .catch((error) => {
-        const errorCode = (error as any).code;
-        if (errorCode !== 'auth/popup-closed-by-user' && errorCode !== 'auth/cancelled-popup-request') {
-          console.error('Error getting redirect result: ', error);
-          toast({
-            title: 'Sign-in Error',
-            description: error.message || 'An unexpected error occurred during sign-in. Please try again.',
-            variant: 'destructive',
-          });
-        }
-      })
-      .finally(() => {
-        setIsProcessingSignIn(false);
+    // When returning from a redirect, authLoading will be true until the user state is determined.
+    // We can use this to show a loading indicator.
+    if (!authLoading && auth) {
+      getRedirectResult(auth).catch((error) => {
+        // Handle any errors from the redirect result, though auth state is our source of truth.
+        console.error('Error from getRedirectResult:', error);
       });
-  }, [auth, authLoading, toast]);
-
+    }
+  }, [authLoading, auth]);
 
   const handleGoogleSignIn = async () => {
-    if (!auth || authLoading || isProcessingSignIn) return;
+    if (!auth) return;
     
+    setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     
     try {
-      setIsProcessingSignIn(true);
       if (isMobile) {
         await signInWithRedirect(auth, provider);
-        // Page will redirect, so no need to set processing to false.
+        // The page will redirect, so isSigningIn will be reset on page load.
       } else {
         await signInWithPopup(auth, provider);
-        setIsProcessingSignIn(false);
+        setIsSigningIn(false);
       }
     } catch (error) {
       const errorCode = (error as any).code;
@@ -89,12 +65,14 @@ export default function Login() {
             variant: 'destructive',
         });
       }
-      setIsProcessingSignIn(false);
+      setIsSigningIn(false);
     }
   };
   
-  const isLoading = authLoading || isProcessingSignIn;
+  // The main loading state now considers both the initial auth check and any sign-in process.
+  const isLoading = authLoading || isSigningIn;
 
+  // Render nothing if the user is already authenticated
   if (user) {
     return null;
   }
