@@ -39,15 +39,11 @@ export default function Login() {
     try {
       if (isMobile) {
         await signInWithRedirect(auth, provider);
-        // After this, the page will reload, and FirebaseClientProvider will handle the result.
       } else {
         await signInWithPopup(auth, provider);
       }
-      // On success, the useAuth hook will detect the user and this component will unmount.
-      // No need to setIsSigningIn(false) for success cases.
     } catch (error) {
       const errorCode = (error as any).code;
-      // Don't show an error for user-cancelled popups or redirects.
       if (errorCode !== 'auth/cancelled-popup-request' && errorCode !== 'auth/popup-closed-by-user') {
         console.error('Error signing in with Google: ', error);
         toast({
@@ -56,15 +52,12 @@ export default function Login() {
             variant: 'destructive',
         });
       }
-      // Only set signing in to false if there was an error.
       setIsSigningIn(false);
     }
   };
   
   const isLoading = authLoading || isSigningIn;
 
-  // Render nothing if the user is already authenticated.
-  // The parent component will show the dashboard.
   if (user) {
     return null;
   }
