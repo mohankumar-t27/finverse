@@ -27,19 +27,27 @@ function initializeFirebase() {
   return { app, auth, firestore };
 }
 
+// This hook now has a simpler responsibility: it just reports the current auth state.
+// The complex initial loading is handled by the FirebaseClientProvider.
 function useAuth() {
   const firebaseAuth = useFirebaseAuth();
   const [user, setUser] = useState<User | null>(null);
-  // The client provider handles the initial loading. This hook just reflects the current state.
-  const [loading, setLoading] = useState(!firebaseAuth);
+  // This loading state is true until the onAuthStateChanged listener below fires for the first time.
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (firebaseAuth) {
+      // This listener will keep the user state up-to-date after the initial load.
       const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
         setUser(user);
-        setLoading(false);
+        setLoading(false); // Once this fires, the auth state is known.
       });
+
+      // Cleanup listener on unmount
       return () => unsubscribe();
+    } else {
+      // If firebaseAuth isn't available yet, we are in a loading state.
+      setLoading(true);
     }
   }, [firebaseAuth]);
 

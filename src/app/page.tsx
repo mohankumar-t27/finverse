@@ -8,9 +8,9 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // The FirebaseClientProvider handles the initial loading screen.
-    // Returning null here prevents any flickering while the auth state is being resolved
-    // by the provider.
+    // The FirebaseClientProvider is already showing a full-screen loader.
+    // Returning null here prevents any content from flashing on screen
+    // while the final auth state is being passed down.
     return null;
   }
 

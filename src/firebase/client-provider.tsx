@@ -15,39 +15,45 @@ interface FirebaseInstances {
   firestore: Firestore;
 }
 
+// This component acts as a gatekeeper. It ensures that Firebase is initialized
+// and the initial authentication state (including any redirects) is resolved
+// before the rest of the app is rendered.
 export default function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
   const [firebase, setFirebase] = useState<FirebaseInstances | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false); // Tracks if the initial auth check is complete
 
   useEffect(() => {
+    // Initialize Firebase services
     const instances = initializeFirebase();
     setFirebase(instances);
 
     const auth = getAuth(instances.app);
-    
-    // onAuthStateChanged is the most reliable listener for when auth is ready.
+
+    // `onAuthStateChanged` is the most reliable way to know when Firebase
+    // has finished its initial check. Inside, we can safely check for a redirect.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      // This is our definitive signal that Firebase has checked the initial state.
-      // Now, we can safely check for a redirect result.
+      // Now that we have the first auth result, we check for a redirect.
       getRedirectResult(auth)
         .catch((error) => {
-          console.error("Error processing redirect result", error);
+          console.error("Error getting redirect result:", error);
         })
         .finally(() => {
-          // Whether the redirect succeeded, failed, or was not initiated,
-          // the entire initial auth process is now complete. We can show the app.
-          setLoading(false);
+          // The initial auth process is now fully complete.
+          // It's safe to render the rest of the application.
+          setIsAuthReady(true);
         });
-
-      // We only need this complex check for the very initial load.
-      // The `useAuth` hook will have its own simpler listener for subsequent changes.
+      
+      // We only need to run this complex check once on the initial load.
       unsubscribe();
     });
 
+    // Cleanup the listener if the component unmounts.
     return () => unsubscribe();
   }, []);
 
-  if (loading || !firebase) {
+  // While we are waiting for Firebase to initialize and for the auth state
+  // to be resolved, show a full-screen loading animation.
+  if (!isAuthReady || !firebase) {
     return (
       <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center">
@@ -57,6 +63,7 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     );
   }
 
+  // Once auth is ready, provide the Firebase instances to the rest of the app.
   return (
     <FirebaseProvider
       app={firebase.app}
