@@ -27,30 +27,37 @@ function initializeFirebase() {
   return { app, auth, firestore };
 }
 
-// This hook now has a simpler responsibility: it just reports the current auth state.
-// The complex initial loading is handled by the FirebaseClientProvider.
 function useAuth() {
   const firebaseAuth = useFirebaseAuth();
   const [user, setUser] = useState<User | null>(null);
-  // This loading state is true until the onAuthStateChanged listener below fires for the first time.
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (firebaseAuth) {
-      // This listener will keep the user state up-to-date after the initial load.
-      const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-        setUser(user);
-        setLoading(false); // Once this fires, the auth state is known.
-      });
-
-      // Cleanup listener on unmount
-      return () => unsubscribe();
-    } else {
-      // If firebaseAuth isn't available yet, we are in a loading state.
+    if (!firebaseAuth) {
+      console.log('[useAuth] Firebase Auth not available yet, setting loading to true.');
       setLoading(true);
+      return;
+    }
+    
+    console.log('[useAuth] Subscribing to onAuthStateChanged.');
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) {
+        console.log('[useAuth] onAuthStateChanged: user signed in:', user.uid);
+      } else {
+        console.log('[useAuth] onAuthStateChanged: user signed out.');
+      }
+      setUser(user);
+      setLoading(false);
+      console.log('[useAuth] onAuthStateChanged: finished, setting loading to false.');
+    });
+
+    return () => {
+      console.log('[useAuth] Unsubscribing from onAuthStateChanged.');
+      unsubscribe();
     }
   }, [firebaseAuth]);
-
+  
+  console.log(`[useAuth] Hook returning: { user: ${user?.uid || 'null'}, loading: ${loading} }`);
   return { user, loading, auth: firebaseAuth };
 }
 
