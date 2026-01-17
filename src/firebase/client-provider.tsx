@@ -18,37 +18,40 @@ interface FirebaseInstances {
 export default function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
   const [firebase, setFirebase] = useState<FirebaseInstances | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  // This loading state will remain true until the initial auth state is confirmed.
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const instances = initializeFirebase();
     setFirebase(instances);
-
     const auth = getAuth(instances.app);
 
-    // This is the key: onAuthStateChanged is the most reliable listener 
-    // for when Firebase has determined the user's state.
+    // onAuthStateChanged is the most reliable listener for the initial auth state.
+    // It fires once on page load, either with a user or with null.
+    // We set loading to false *only* inside this callback.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
-    
-    // We also check for a redirect result to complete the sign-in flow.
-    // onAuthStateChanged will then fire with the new user.
+
+    // We also call getRedirectResult() to process any pending sign-in.
+    // A successful redirect will trigger the onAuthStateChanged listener above,
+    // which will then update the user and loading state correctly.
     getRedirectResult(auth).catch((error) => {
-      // Handle potential errors from getRedirectResult, e.g., if the user
-      // is on a different domain than where they started the sign-in.
       console.error("Error processing redirect result:", error);
+      // If there's an error (e.g., user cancels), onAuthStateChanged will still
+      // fire (with null), ensuring the loading state is correctly resolved.
     });
 
     return () => unsubscribe();
-  }, []);
-  
+  }, []); // This effect runs only once.
+
   const providerValue = useMemo(() => {
       if (!firebase) return null;
       return { ...firebase, user, loading, auth: firebase.auth };
   }, [firebase, user, loading]);
 
+  // The provider shows a loader until onAuthStateChanged has fired.
   if (loading || !providerValue) {
     return (
       <BackgroundGradientAnimation>
