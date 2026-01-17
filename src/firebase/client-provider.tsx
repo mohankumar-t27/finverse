@@ -16,42 +16,42 @@ interface FirebaseInstances {
 }
 
 export default function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
-  const [firebase, setFirebase] = useState<FirebaseInstances | null>(null);
+  const [instances, setInstances] = useState<FirebaseInstances | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  // This loading state will remain true until the initial auth state is confirmed.
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const instances = initializeFirebase();
-    setFirebase(instances);
-    const auth = getAuth(instances.app);
+    const firebaseInstances = initializeFirebase();
+    setInstances(firebaseInstances);
+    const auth = getAuth(firebaseInstances.app);
 
-    // onAuthStateChanged is the most reliable listener for the initial auth state.
-    // It fires once on page load, either with a user or with null.
-    // We set loading to false *only* inside this callback.
+    // This listener is the single source of truth for the user's state.
+    // It will be triggered by onAuthStateChanged itself, and also by
+    // getRedirectResult when it successfully processes a sign-in.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      setLoading(false);
+      setLoading(false); // Auth state is now confirmed, we can stop loading.
+    });
+    
+    // Check for a redirect result. This should be called on every page load
+    // to handle the redirect from the identity provider.
+    // The result is handled by the onAuthStateChanged listener above.
+    getRedirectResult(auth).catch((error) => {
+      // Handle potential errors, e.g., user cancels the sign-in
+      console.error("Firebase redirect check error:", error);
+      // Even if it errors, onAuthStateChanged will still fire with a null user,
+      // correctly setting loading to false.
     });
 
-    // We also call getRedirectResult() to process any pending sign-in.
-    // A successful redirect will trigger the onAuthStateChanged listener above,
-    // which will then update the user and loading state correctly.
-    getRedirectResult(auth).catch((error) => {
-      console.error("Error processing redirect result:", error);
-      // If there's an error (e.g., user cancels), onAuthStateChanged will still
-      // fire (with null), ensuring the loading state is correctly resolved.
-    });
 
     return () => unsubscribe();
-  }, []); // This effect runs only once.
+  }, []);
 
   const providerValue = useMemo(() => {
-      if (!firebase) return null;
-      return { ...firebase, user, loading, auth: firebase.auth };
-  }, [firebase, user, loading]);
+    if (!instances) return null;
+    return { ...instances, user, loading };
+  }, [instances, user, loading]);
 
-  // The provider shows a loader until onAuthStateChanged has fired.
   if (loading || !providerValue) {
     return (
       <BackgroundGradientAnimation>
@@ -67,8 +67,8 @@ export default function FirebaseClientProvider({ children }: { children: React.R
       app={providerValue.app}
       auth={providerValue.auth}
       firestore={providerValue.firestore}
-      user={user}
-      loading={loading}
+      user={providerValue.user}
+      loading={providerValue.loading}
     >
       {children}
     </FirebaseProvider>

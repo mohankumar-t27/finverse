@@ -43,7 +43,7 @@ export default function Login() {
         await signInWithRedirect(auth, provider);
       } else {
         await signInWithPopup(auth, provider);
-        // After popup sign-in, the onAuthStateChanged in useAuth will handle the update.
+        // After popup sign-in, the onAuthStateChanged listener in the provider will handle the update.
       }
     } catch (error) {
       const errorCode = (error as any).code;
@@ -57,7 +57,6 @@ export default function Login() {
         });
       }
       // Only set isSigningIn to false in the catch block for non-redirect scenarios.
-      // For redirects, the page will reload anyway.
       setIsSigningIn(false);
     }
   };
