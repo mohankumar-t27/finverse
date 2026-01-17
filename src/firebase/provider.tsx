@@ -2,16 +2,24 @@
 
 import React, { createContext, useContext, useMemo } from 'react';
 import { type FirebaseApp } from 'firebase/app';
-import { type Auth } from 'firebase/auth';
+import { type Auth, type User } from 'firebase/auth';
 import { type Firestore } from 'firebase/firestore';
 
 interface FirebaseContextType {
-  app: FirebaseApp;
-  auth: Auth;
-  firestore: Firestore;
+  app: FirebaseApp | null;
+  auth: Auth | null;
+  firestore: Firestore | null;
+  user: User | null;
+  loading: boolean;
 }
 
-const FirebaseContext = createContext<FirebaseContextType | null>(null);
+const FirebaseContext = createContext<FirebaseContextType>({
+    app: null,
+    auth: null,
+    firestore: null,
+    user: null,
+    loading: true,
+});
 
 export function useFirebase() {
   return useContext(FirebaseContext);
@@ -28,8 +36,7 @@ export function useFirebaseApp() {
 }
 
 export function useAuth() {
-    const context = useFirebase();
-    return context?.auth;
+    return useContext(FirebaseContext);
 }
 
 interface FirebaseProviderProps {
@@ -37,12 +44,14 @@ interface FirebaseProviderProps {
     app: FirebaseApp;
     auth: Auth;
     firestore: Firestore;
+    user: User | null;
+    loading: boolean;
 }
 
-export default function FirebaseProvider({ children, app, auth, firestore }: FirebaseProviderProps) {
+export default function FirebaseProvider({ children, app, auth, firestore, user, loading }: FirebaseProviderProps) {
   const memoizedValue = useMemo(() => {
-    return { app, auth, firestore };
-  }, [app, auth, firestore]);
+    return { app, auth, firestore, user, loading };
+  }, [app, auth, firestore, user, loading]);
 
   return (
     <FirebaseContext.Provider value={memoizedValue}>
