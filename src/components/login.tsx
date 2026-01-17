@@ -31,33 +31,41 @@ export default function Login() {
   }, []);
 
   const handleGoogleSignIn = async () => {
-    if (!auth) return;
+    if (!auth) {
+        console.error('[Login] Auth instance not available for sign-in.');
+        return;
+    }
     
+    console.log('[Login] handleGoogleSignIn triggered. Mobile:', isMobile);
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     
     try {
       if (isMobile) {
-        // This initiates the navigation away from the app.
-        // The FirebaseClientProvider will handle catching the result when the user returns.
+        console.log('[Login] Using signInWithRedirect.');
         await signInWithRedirect(auth, provider);
+        // Redirect happens, so no further code in this block will execute on success.
       } else {
+        console.log('[Login] Using signInWithPopup.');
         await signInWithPopup(auth, provider);
-        // After popup sign-in, the onAuthStateChanged listener in the provider will handle the update.
+        // After popup sign-in, the onAuthStateChanged listener will handle the update.
       }
     } catch (error) {
       const errorCode = (error as any).code;
       // Don't show an error toast if the user simply closes the popup.
       if (errorCode !== 'auth/cancelled-popup-request' && errorCode !== 'auth/popup-closed-by-user') {
-        console.error('Error signing in with Google: ', error);
+        console.error('[Login] Error signing in with Google: ', error);
         toast({
             title: 'Sign-in Error',
             description: (error as any).message || 'An unexpected error occurred. Please try again.',
             variant: 'destructive',
         });
       }
-      // Only set isSigningIn to false in the catch block for non-redirect scenarios.
       setIsSigningIn(false);
+    }
+    // Don't set isSigningIn to false here for the redirect case, as the page will reload.
+    if (!isMobile) {
+        setIsSigningIn(false);
     }
   };
 
