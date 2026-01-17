@@ -32,7 +32,6 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     // `onAuthStateChanged` is the most reliable way to know when Firebase
     // has finished its initial check. Inside, we can safely check for a redirect.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      // Now that we have the first auth result, we check for a redirect.
       getRedirectResult(auth)
         .catch((error) => {
           console.error("Error getting redirect result:", error);
