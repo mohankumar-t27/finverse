@@ -32,23 +32,24 @@ export default function Login() {
 
   const handleGoogleSignIn = async () => {
     if (!auth) {
-        console.error('[Login] Auth instance not available for sign-in.');
+        toast({
+            title: 'Authentication Error',
+            description: 'Authentication service is not available. Please try again later.',
+            variant: 'destructive',
+        });
         return;
     }
     
-    console.log('[Login] handleGoogleSignIn triggered. Mobile:', isMobile);
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
     
     try {
       if (isMobile) {
-        console.log('[Login] Using signInWithRedirect.');
+        // For mobile, we use redirect. The FirebaseClientProvider will handle the result.
         await signInWithRedirect(auth, provider);
-        // Redirect happens, so no further code in this block will execute on success.
       } else {
-        console.log('[Login] Using signInWithPopup.');
+        // For desktop, we can use a popup.
         await signInWithPopup(auth, provider);
-        // After popup sign-in, the onAuthStateChanged listener will handle the update.
       }
     } catch (error) {
       const errorCode = (error as any).code;
@@ -63,10 +64,7 @@ export default function Login() {
       }
       setIsSigningIn(false);
     }
-    // Don't set isSigningIn to false here for the redirect case, as the page will reload.
-    if (!isMobile) {
-        setIsSigningIn(false);
-    }
+    // No need to set isSigningIn to false for the redirect case as the page reloads.
   };
 
   return (

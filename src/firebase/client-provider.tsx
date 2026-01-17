@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeFirebase } from './index';
 import FirebaseProvider from './provider';
-import { getAuth, onAuthStateChanged, getRedirectResult, type User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { BackgroundGradientAnimation } from '@/components/ui/background-gradient';
 import { Loader2 } from 'lucide-react';
 
@@ -13,30 +13,19 @@ export default function FirebaseClientProvider({ children }: { children: React.R
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('[FirebaseClientProvider] Effect started.');
-
+    // onAuthStateChanged is the single source of truth.
+    // It correctly handles the redirect flow by waiting for it to complete before firing.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log(`[FirebaseClientProvider] onAuthStateChanged fired. User: ${user?.uid || 'null'}.`);
       setUser(user);
-      console.log(`[FirebaseClientProvider] Setting loading to false.`);
-      setLoading(false); // Definitive state is known, stop loading.
+      setLoading(false);
     });
 
-    console.log('[FirebaseClientProvider] Calling getRedirectResult to process potential sign-in.');
-    getRedirectResult(auth).catch((error) => {
-      // This is just to process the redirect. The onAuthStateChanged listener
-      // above will handle the user state update. We just log any errors here.
-      console.error('[FirebaseClientProvider] Error processing redirect result:', error);
-    });
-
-    return () => {
-      console.log('[FirebaseClientProvider] Unsubscribing from onAuthStateChanged.');
-      unsubscribe();
-    };
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, [auth]);
 
+  // Show a full-screen loader while waiting for the initial auth state.
   if (loading) {
-    console.log('[FirebaseClientProvider] In loading state, rendering loader.');
     return (
       <BackgroundGradientAnimation>
         <div className="absolute z-50 inset-0 flex items-center justify-center">
@@ -46,7 +35,7 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     );
   }
 
-  console.log('[FirebaseClientProvider] Loading complete. Rendering provider with children.');
+  // Once loading is false, the auth state is definitive.
   return (
     <FirebaseProvider app={app} auth={auth} firestore={firestore} user={user} loading={loading}>
       {children}

@@ -36,9 +36,7 @@ export function useFirebaseApp() {
 }
 
 export function useAuth() {
-    const context = useContext(FirebaseContext);
-    console.log('[useAuth] Hook returning state:', { user: context.user?.uid || 'null', loading: context.loading });
-    return context;
+    return useContext(FirebaseContext);
 }
 
 interface FirebaseProviderProps {
