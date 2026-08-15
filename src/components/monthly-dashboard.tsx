@@ -195,7 +195,7 @@ export default function MonthlyDashboard({
         canCopyPreviousBudgets={canCopyPreviousBudgets}
       />
 
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden">
         {/* Welcome Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 rounded-2xl bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-slate-950/80 border border-white/10 backdrop-blur-xl shadow-xl">
           <div>
