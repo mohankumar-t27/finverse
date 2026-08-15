@@ -1,9 +1,9 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
-import { Loader2, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Lock, PieChart, Layers, Wallet, CheckCircle2, Globe, ExternalLink } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Lock, Layers, Wallet, CheckCircle2, Globe, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useEffect, useState } from 'react';
@@ -55,6 +55,35 @@ export default function Login() {
     setTagline(taglines[Math.floor(Math.random() * taglines.length)]);
   }, []);
 
+  // Handle mobile redirect sign-in result when returning to page
+  useEffect(() => {
+    if (!auth) return;
+    
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          toast({
+            title: 'Welcome to FinVerse!',
+            description: `Successfully signed in as ${result.user.displayName || result.user.email}`,
+          });
+        }
+      })
+      .catch((error: any) => {
+        const errorCode = error?.code;
+        if (errorCode !== 'auth/popup-closed-by-user' && errorCode !== 'auth/cancelled-popup-request') {
+          console.error('[Login] Redirect sign-in error:', error);
+          toast({
+            title: 'Mobile Sign-in Error',
+            description: error?.message || 'Authentication failed. Please try again.',
+            variant: 'destructive',
+          });
+        }
+      })
+      .finally(() => {
+        setIsSigningIn(false);
+      });
+  }, [auth, toast]);
+
   const handleGoogleSignIn = async () => {
     if (!auth) {
       toast({
@@ -67,24 +96,33 @@ export default function Login() {
     
     setIsSigningIn(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     
     try {
-      if (isMobile) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
+      // Try popup sign-in first (works on 95%+ mobile browsers)
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      const errorCode = error?.code;
+      
+      // Ignore user cancellation
+      if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/cancelled-popup-request') {
+        setIsSigningIn(false);
+        return;
       }
-    } catch (error) {
-      const errorCode = (error as any).code;
-      if (errorCode !== 'auth/cancelled-popup-request' && errorCode !== 'auth/popup-closed-by-user') {
-        console.error('[Login] Error signing in with Google: ', error);
+
+      // If popup is blocked or fails on mobile, fall back to redirect
+      console.warn('[Login] Popup sign-in issue, attempting redirect fallback:', errorCode);
+      try {
+        await signInWithRedirect(auth, provider);
+      } catch (redirectError: any) {
+        console.error('[Login] Redirect initiation error:', redirectError);
         toast({
           title: 'Sign-in Error',
-          description: (error as any).message || 'An unexpected error occurred. Please try again.',
+          description: redirectError?.message || 'Could not launch Google Sign-In.',
           variant: 'destructive',
         });
+        setIsSigningIn(false);
       }
-      setIsSigningIn(false);
     }
   };
 
