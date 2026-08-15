@@ -286,24 +286,6 @@ export default function Login() {
           })}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 w-full border-t border-slate-900 py-6 px-6 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Logo className="w-5 h-5 shrink-0" />
-            <span>&copy; {new Date().getFullYear()} Versetile Technologies Pvt Ltd. All rights reserved.</span>
-          </div>
-          <div className="flex gap-6 text-slate-400 font-medium">
-            <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
-              Versetile Main Site <ExternalLink className="h-3 w-3" />
-            </a>
-            <a href="https://fin.versetile.in" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
-              FinVerse App <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
