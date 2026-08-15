@@ -7,7 +7,7 @@ export default function Logo({ className }: { className?: string }) {
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 462 517"
+      viewBox="-465 -50 930 575"
       className={cn(className)}
     >
       <path
