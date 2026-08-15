@@ -3,11 +3,12 @@
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
-import { Loader2, ShieldCheck, TrendingUp, Sparkles, Lock, PieChart, ArrowRight, BarChart3, Layers, DollarSign, PiggyBank } from 'lucide-react';
+import { Loader2, ShieldCheck, Zap, TrendingUp, Sparkles, Lock, PieChart, ArrowRight, BarChart3, Layers, DollarSign, PiggyBank, ExternalLink, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useEffect, useState } from 'react';
 import Logo from './logo';
+import HeroVectorIllustration from './hero-vector-illustration';
 
 const taglines = [
   "Track and manage your monthly expenses with ease.",
@@ -38,7 +39,7 @@ const features = [
   },
   {
     icon: Lock,
-    title: "Privacy Toggle",
+    title: "Privacy Masking",
     description: "Mask sensitive financial figures with instant blur toggles for safe browsing.",
     color: "from-amber-500 to-orange-600"
   }
@@ -103,15 +104,31 @@ export default function Login() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
       </div>
 
-      {/* Top Header Bar with Native Logo */}
+      {/* Header Bar */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-        <Logo showText size="lg" />
+        <a href="https://fin.versetile.in" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+          <Logo className="w-10 h-10 shrink-0" />
+          <div className="flex flex-col">
+            <span className="font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-200 to-emerald-400">
+              FinVerse
+            </span>
+            <span className="font-semibold text-[11px] tracking-wider text-cyan-400/80 uppercase -mt-1">
+              QUANTUM INTELLIGENCE PLATFORM
+            </span>
+          </div>
+        </a>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs font-semibold text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            FinVerse Quantum v2.0
-          </div>
+          <a 
+            href="https://versetile.in" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs font-semibold text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/30 transition-all"
+          >
+            <Globe className="h-3.5 w-3.5" />
+            Versetile Ecosystem
+            <ExternalLink className="h-3 w-3 opacity-60" />
+          </a>
           <Button 
             onClick={handleGoogleSignIn}
             disabled={isSigningIn}
@@ -125,29 +142,29 @@ export default function Login() {
 
       {/* Hero Section */}
       <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-4 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        {/* Left Column: Headline & Sign In Action */}
+        {/* Left Column: Headline & Action */}
         <div className="lg:col-span-6 flex flex-col justify-center space-y-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold w-fit">
             <PiggyBank className="h-4 w-4 text-emerald-400" />
-            Smart & Simple Expense Management
+            Versetile Product Showcase &bull; https://fin.versetile.in
           </div>
 
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
               Master Your Money with{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-                FinVerse Quantum
+                FinVerse Intelligence
               </span>
             </h1>
             <p className="text-lg text-slate-300 max-w-xl font-normal leading-relaxed">
-              "{tagline}" Experience clean monthly budget tracking, smart category charts, and privacy-shielded financial insights.
+              {tagline} Experience clean monthly budget tracking, smart category charts, and privacy-shielded financial insights.
             </p>
           </div>
 
           {/* Login Card */}
           <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl backdrop-blur-xl space-y-5 max-w-md">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-300">Sign in to your Portal</span>
+              <span className="text-sm font-semibold text-slate-300">Sign in to FinVerse Portal</span>
               <span className="text-xs text-emerald-400 flex items-center gap-1 font-mono">
                 <ShieldCheck className="h-3.5 w-3.5" /> Secure Google Auth
               </span>
@@ -179,8 +196,10 @@ export default function Login() {
             </Button>
 
             <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-              <span>No setup fee required</span>
-              <span>Instant Cloud Sync</span>
+              <span>Product by Versetile</span>
+              <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 flex items-center gap-1">
+                versetile.in <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
           </div>
 
@@ -195,53 +214,18 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Right Column: Hero Brand Showcase Featuring Logo.tsx */}
+        {/* Right Column: Crisp React Vector Illustration Component */}
         <div className="lg:col-span-6 relative">
-          <div className="relative rounded-3xl p-8 bg-gradient-to-b from-emerald-500/10 via-slate-900/90 to-cyan-500/10 border border-slate-800/80 shadow-2xl backdrop-blur-2xl flex flex-col items-center justify-center text-center space-y-6 group">
-            
-            {/* Ambient Background Lighting Ring */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/30 transition-all duration-700" />
+          <HeroVectorIllustration />
 
-            {/* Prominent Logo Component Showcase */}
-            <div className="relative z-10 p-6 rounded-3xl bg-slate-950/80 border border-white/10 shadow-2xl flex flex-col items-center justify-center transition-transform duration-500 group-hover:scale-105">
-              <Logo size="xl" showText />
-            </div>
-
-            <p className="relative z-10 text-sm text-slate-300 max-w-md font-medium leading-relaxed">
-              Your personal financial command center. Real-time budget monitoring, monthly analytics, and multi-category expense management.
-            </p>
-
-            {/* Overlaid Floating Glass Badge 1 */}
-            <div className="absolute -top-4 -left-4 hidden sm:flex items-center gap-3 p-3.5 rounded-2xl bg-slate-900/95 border border-emerald-500/40 shadow-2xl backdrop-blur-md animate-float-slow">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400">
-                <PieChart className="h-5 w-5" />
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-slate-400 font-medium">Monthly Health</div>
-                <div className="text-sm font-extrabold text-emerald-300">On Track</div>
-              </div>
-            </div>
-
-            {/* Overlaid Floating Glass Badge 2 */}
-            <div className="absolute -bottom-4 -right-4 hidden sm:flex items-center gap-3 p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 shadow-2xl backdrop-blur-md animate-float-slow">
-              <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-400">
-                <DollarSign className="h-5 w-5" />
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-slate-400 font-medium">Live Sync</div>
-                <div className="text-sm font-extrabold text-cyan-300">Firestore Cloud</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sub-Feature Preview Bar */}
+          {/* Feature Highlights Grid below Illustration */}
           <div className="mt-6 grid grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 hover:border-emerald-500/30 transition-colors">
               <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 flex-shrink-0">
                 <BarChart3 className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-200">Visual Analytics</h4>
+                <h4 className="text-xs font-bold text-slate-200">Crisp Analytics</h4>
                 <p className="text-[11px] text-slate-400">Budget vs Actual charts</p>
               </div>
             </div>
@@ -251,8 +235,8 @@ export default function Login() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-200">Category Caps</h4>
-                <p className="text-[11px] text-slate-400">Smart over-budget shields</p>
+                <h4 className="text-xs font-bold text-slate-200">Budget Cap Shield</h4>
+                <p className="text-[11px] text-slate-400">Over-spend protection</p>
               </div>
             </div>
           </div>
@@ -291,13 +275,16 @@ export default function Login() {
       <footer className="relative z-10 w-full border-t border-slate-900 py-8 px-6 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Logo size="sm" />
-            <span>&copy; {new Date().getFullYear()} FinVerse Inc. All rights reserved.</span>
+            <Logo className="w-6 h-6 shrink-0" />
+            <span>&copy; {new Date().getFullYear()} Versetile Technologies Pvt Ltd. All rights reserved.</span>
           </div>
           <div className="flex gap-6 text-slate-400 font-medium">
-            <span className="hover:text-emerald-400 transition-colors cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-emerald-400 transition-colors cursor-pointer">Security Protocol</span>
-            <span className="hover:text-emerald-400 transition-colors cursor-pointer">Help Center</span>
+            <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+              Versetile Main Site <ExternalLink className="h-3 w-3" />
+            </a>
+            <a href="https://fin.versetile.in" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+              FinVerse App <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </footer>

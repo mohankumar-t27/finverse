@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="w-full flex-shrink-0 border-t border-border/40 bg-background/50 backdrop-blur-md py-6 px-4 md:px-6 mt-auto">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <Logo size="sm" />
+          <Logo className="w-6 h-6 shrink-0" />
           <span>&copy; {new Date().getFullYear()} FinVerse Quantum Inc. All rights reserved.</span>
         </div>
 
