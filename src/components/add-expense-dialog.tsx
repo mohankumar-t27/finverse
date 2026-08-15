@@ -62,9 +62,9 @@ export default function AddExpenseDialog({ categories, onAddExpense }: AddExpens
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const triggerButton = (
-    <Button className="bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-400 hover:to-pink-400 text-white font-bold rounded-xl shadow-lg shadow-rose-500/25 transition-all duration-300 hover:scale-105 border border-white/20">
-      <PlusCircle className="mr-2 h-4 w-4" />
-      Add Expense
+    <Button className="bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 hover:from-amber-400 hover:to-pink-400 text-white font-bold rounded-xl shadow-lg shadow-rose-500/25 transition-all duration-300 hover:scale-105 border border-white/20 flex items-center gap-1.5 px-2.5 sm:px-4 text-xs sm:text-sm shrink-0">
+      <PlusCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+      <span className="truncate">+ Expense</span>
     </Button>
   );
 

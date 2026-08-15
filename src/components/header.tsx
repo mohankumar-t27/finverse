@@ -34,35 +34,39 @@ export default function Header({
 }: HeaderProps) {
   const { user } = useAuth();
   return (
-    <header className="glass sticky top-0 z-30 flex h-auto flex-col items-start gap-4 border-b bg-card/80 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
+    <header className="glass sticky top-0 z-30 flex h-auto flex-col items-start gap-3 border-b bg-card/80 p-3 sm:p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:px-6">
       <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
         <div className="flex items-center gap-2">
-          <Logo className="h-6 w-6" />
-          <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl md:text-xl">
+          <Logo className="h-6 w-6 shrink-0" />
+          <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
             FinVerse
           </h1>
         </div>
         <div className="flex items-center gap-2 sm:hidden">
-            <ThemeToggle />
-            { user && <UserNav user={user} /> }
+          <ThemeToggle />
+          { user && <UserNav user={user} /> }
         </div>
       </div>
       
-      <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center md:w-auto md:justify-end">
-        <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
-        <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
-            <BudgetSetupDialog 
-              budgets={budgets} 
-              onUpdateBudgets={onUpdateBudgets}
-              onCopyPreviousBudgets={onCopyPreviousBudgets}
-              canCopyPreviousBudgets={canCopyPreviousBudgets}
-            />
-            <AddEarnedDialog onAddEarned={onAddEarned} />
-            <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
-            <div className="hidden items-center gap-2 sm:flex">
-                <ThemeToggle />
-                { user && <UserNav user={user} /> }
-            </div>
+      <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center md:w-auto md:justify-end">
+        <div className="w-full sm:w-auto flex justify-center">
+          <MonthSelector selectedDate={selectedDate} onSelectedDateChange={onSelectedDateChange} />
+        </div>
+
+        <div className="flex w-full items-center justify-between sm:justify-center gap-1.5 sm:gap-2 sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <BudgetSetupDialog 
+            budgets={budgets} 
+            onUpdateBudgets={onUpdateBudgets}
+            onCopyPreviousBudgets={onCopyPreviousBudgets}
+            canCopyPreviousBudgets={canCopyPreviousBudgets}
+          />
+          <AddEarnedDialog onAddEarned={onAddEarned} />
+          <AddExpenseDialog categories={budgets.map(b => b.category)} onAddExpense={onAddExpense} />
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <ThemeToggle />
+            { user && <UserNav user={user} /> }
+          </div>
         </div>
       </div>
     </header>

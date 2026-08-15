@@ -68,9 +68,9 @@ export default function AddEarnedDialog({ onAddEarned }: AddEarnedDialogProps) {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20">
-          <Banknote className="mr-2 h-4 w-4" />
-          Add Income
+        <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 px-2.5 sm:px-4 text-xs sm:text-sm shrink-0">
+          <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+          <span className="truncate">+ Income</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className="glass border-t border-border/60">

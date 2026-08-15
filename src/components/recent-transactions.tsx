@@ -89,7 +89,7 @@ export default function RecentTransactions({ expenses, onRemoveExpense }: Recent
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground/60 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="h-8 w-8 text-muted-foreground/60 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                         onClick={() => onRemoveExpense(expense.id)}
                         title="Delete Transaction"
                       >

@@ -84,9 +84,9 @@ export default function BudgetSetupDialog({
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="bg-background/60 hover:bg-secondary border-border/80 rounded-xl font-semibold shadow-sm flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4 text-cyan-400" />
-          Set Budgets
+        <Button variant="outline" className="bg-background/60 hover:bg-secondary border-border/80 rounded-xl font-semibold shadow-sm flex items-center gap-1.5 px-2.5 sm:px-4 text-xs sm:text-sm shrink-0">
+          <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-cyan-400 shrink-0" />
+          <span className="truncate">Budgets</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className="glass border-t border-border/60">
