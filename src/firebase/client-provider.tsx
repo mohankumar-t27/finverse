@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeFirebase } from './index';
 import FirebaseProvider from './provider';
-import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, getRedirectResult, type User } from 'firebase/auth';
 import { BackgroundGradientAnimation } from '@/components/ui/background-gradient';
 import { Loader2 } from 'lucide-react';
 
@@ -13,18 +13,27 @@ export default function FirebaseClientProvider({ children }: { children: React.R
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // onAuthStateChanged is the single source of truth.
-    // It correctly handles the redirect flow by waiting for it to complete before firing.
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    // Process mobile redirect results immediately on mount
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch((err) => {
+        console.error('[FirebaseClientProvider] Error processing redirect result:', err);
+      });
+
+    // Single source of truth listener
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth]);
 
-  // Show a full-screen loader while waiting for the initial auth state.
+  // Show a full-screen loader while waiting for initial auth state.
   if (loading) {
     return (
       <BackgroundGradientAnimation>
@@ -35,7 +44,6 @@ export default function FirebaseClientProvider({ children }: { children: React.R
     );
   }
 
-  // Once loading is false, the auth state is definitive.
   return (
     <FirebaseProvider app={app} auth={auth} firestore={firestore} user={user} loading={loading}>
       {children}
