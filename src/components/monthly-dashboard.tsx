@@ -239,11 +239,11 @@ export default function MonthlyDashboard({
           <>
             <OverviewCards totalBudget={totalBudget} totalSpent={totalSpent} totalEarned={totalEarned} />
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-              <div className="lg:col-span-3 min-h-[380px]">
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-5 items-start">
+              <div className="w-full lg:col-span-3">
                 <CategorySpending budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
               </div>
-              <div className="lg:col-span-2 min-h-[380px]">
+              <div className="w-full lg:col-span-2">
                 <SpendingCharts budgets={monthlyData.budgets} expenses={monthlyData.expenses} />
               </div>
             </div>
