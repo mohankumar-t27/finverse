@@ -3,12 +3,11 @@
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { Button } from './ui/button';
 import { useAuth } from '@/firebase';
-import { Loader2, ShieldCheck, Zap, TrendingUp, Sparkles, Lock, PieChart, ArrowRight, BarChart3, Layers, DollarSign, PiggyBank, ExternalLink, Globe } from 'lucide-react';
+import { Loader2, ShieldCheck, Sparkles, ArrowRight, TrendingUp, Lock, PieChart, Layers, Wallet, CheckCircle2, Globe, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useEffect, useState } from 'react';
 import Logo from './logo';
-import HeroVectorIllustration from './hero-vector-illustration';
 
 const taglines = [
   "Track and manage your monthly expenses with ease.",
@@ -39,13 +38,11 @@ const features = [
   },
   {
     icon: Lock,
-    title: "Privacy Masking",
+    title: "Privacy Shield",
     description: "Mask sensitive financial figures with instant blur toggles for safe browsing.",
     color: "from-amber-500 to-orange-600"
   }
 ];
-
-
 
 export default function Login() {
   const { auth } = useAuth();
@@ -92,27 +89,30 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-slate-100 flex flex-col overflow-x-hidden selection:bg-emerald-500/30">
+    <div className="relative min-h-screen bg-slate-950 text-slate-100 flex flex-col overflow-x-hidden selection:bg-cyan-500/30">
       {/* Background Soft Glow Orbs */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/15 rounded-full blur-[140px] animate-pulse-glow" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[160px] animate-pulse-glow" style={{ animationDelay: '2s' }} />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+        <div className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[150px]" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/15 rounded-full blur-[160px]" />
+        <div className="absolute top-[40%] left-[35%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[140px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.12),rgba(255,255,255,0))]" />
       </div>
 
-      {/* Header Bar */}
+      {/* Top Header Bar */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-        <a href="https://fin.versetile.in" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-          <Logo className="w-10 h-10 shrink-0" />
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 shadow-md flex items-center justify-center">
+            <Logo className="w-8 h-8" />
+          </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-200 to-emerald-400">
               FinVerse
             </span>
-            <span className="font-semibold text-[11px] tracking-wider text-cyan-400/80 uppercase -mt-1">
+            <span className="font-semibold text-[10px] tracking-wider text-cyan-400/80 uppercase -mt-1">
               EXPENSE INTELLIGENCE
             </span>
           </div>
-        </a>
+        </div>
 
         <div className="flex items-center gap-4">
           <a 
@@ -128,7 +128,7 @@ export default function Login() {
           <Button 
             onClick={handleGoogleSignIn}
             disabled={isSigningIn}
-            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold shadow-lg shadow-emerald-500/20 border border-emerald-400/30 rounded-xl px-5 transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/20 border border-cyan-400/30 rounded-xl px-5 transition-all duration-300 hover:scale-105"
           >
             {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
             Get Started
@@ -136,33 +136,41 @@ export default function Login() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-4 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        {/* Left Column: Headline & Action */}
+      {/* Main Content */}
+      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-6 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Left Column: Hero Copy & Sign In Card */}
         <div className="lg:col-span-6 flex flex-col justify-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold w-fit">
-            <PiggyBank className="h-4 w-4 text-emerald-400" />
-            Versetile Product Showcase &bull; https://fin.versetile.in
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-semibold w-fit">
+            <Wallet className="h-4 w-4 text-cyan-400" />
+            Next-Gen Personal Expense & Budget Management
           </div>
 
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
               Master Your Money with{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-200 to-emerald-400">
                 FinVerse Intelligence
               </span>
             </h1>
-            <p className="text-lg text-slate-300 max-w-xl font-normal leading-relaxed">
-              {tagline} Experience clean monthly budget tracking, smart category charts, and privacy-shielded financial insights.
+            <p className="text-base sm:text-lg text-slate-300 max-w-xl font-normal leading-relaxed">
+              "{tagline}" Experience real-time budget tracking, category analytics, and privacy-shielded financial control.
             </p>
           </div>
 
-          {/* Login Card */}
-          <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl backdrop-blur-xl space-y-5 max-w-md">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-300">Sign in to FinVerse Portal</span>
-              <span className="text-xs text-emerald-400 flex items-center gap-1 font-mono">
-                <ShieldCheck className="h-3.5 w-3.5" /> Secure Google Auth
+          {/* Sign In Card */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800/90 shadow-2xl backdrop-blur-2xl space-y-6 max-w-md">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center">
+                  <Logo className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Sign In to FinVerse</h3>
+                  <p className="text-xs text-slate-400">Secure Access to Your Dashboard</p>
+                </div>
+              </div>
+              <span className="text-xs text-emerald-400 flex items-center gap-1 font-mono bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                <ShieldCheck className="h-3.5 w-3.5" /> Auth
               </span>
             </div>
 
@@ -170,12 +178,12 @@ export default function Login() {
               onClick={handleGoogleSignIn} 
               disabled={isSigningIn}
               size="lg"
-              className="w-full h-12 bg-white hover:bg-slate-100 text-slate-900 font-bold text-base shadow-xl rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 group"
+              className="w-full h-12 bg-white hover:bg-slate-100 text-slate-950 font-bold text-base shadow-xl rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 group"
             >
               {isSigningIn ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin text-slate-900" />
-                  Connecting...
+                  <Loader2 className="h-5 w-5 animate-spin text-slate-950" />
+                  <span>Connecting to Google...</span>
                 </>
               ) : (
                 <>
@@ -191,40 +199,60 @@ export default function Login() {
               )}
             </Button>
 
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-              <span>Product by Versetile</span>
-              <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 flex items-center gap-1">
-                versetile.in <ExternalLink className="h-3 w-3" />
-              </a>
+            <div className="grid grid-cols-3 gap-2 pt-2 text-[11px] text-slate-400 text-center font-medium">
+              <div className="flex items-center justify-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Free Setup
+              </div>
+              <div className="flex items-center justify-center gap-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-cyan-400" /> Encrypted
+              </div>
+              <div className="flex items-center justify-center gap-1">
+                <Globe className="h-3.5 w-3.5 text-sky-400" /> Cloud Sync
+              </div>
             </div>
           </div>
-
-
         </div>
 
-        {/* Right Column: Crisp React Vector Illustration Component */}
-        <div className="lg:col-span-6 relative">
-          <HeroVectorIllustration />
+        {/* Right Column: Hero Brand Showcase Card */}
+        <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
+          <div className="w-full max-w-lg rounded-3xl p-8 sm:p-10 bg-gradient-to-b from-cyan-500/10 via-slate-900/90 to-emerald-500/10 border border-slate-800/80 shadow-2xl backdrop-blur-2xl flex flex-col items-center text-center space-y-6 relative overflow-hidden group">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/25 transition-all duration-700" />
 
-          {/* Feature Highlights Grid below Illustration */}
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 hover:border-emerald-500/30 transition-colors">
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 flex-shrink-0">
-                <BarChart3 className="h-5 w-5" />
+            {/* Central Badge featuring Logo */}
+            <div className="relative z-10 p-5 rounded-3xl bg-slate-950/90 border border-white/10 shadow-2xl flex flex-col items-center gap-3 transition-transform duration-500 group-hover:scale-105">
+              <div className="p-3 rounded-2xl bg-gradient-to-tr from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20">
+                <Logo className="w-16 h-16" />
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-200">Crisp Analytics</h4>
-                <p className="text-[11px] text-slate-400">Budget vs Actual charts</p>
-              </div>
+              <span className="font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-200 to-emerald-400">
+                FinVerse
+              </span>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 hover:border-cyan-500/30 transition-colors">
-              <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 flex-shrink-0">
-                <ShieldCheck className="h-5 w-5" />
+            <p className="relative z-10 text-sm text-slate-300 max-w-sm leading-relaxed">
+              Your personal financial command center. Real-time budget monitoring, category analytics, and effortless expense control.
+            </p>
+
+            {/* Feature Pills */}
+            <div className="relative z-10 grid grid-cols-2 gap-3 w-full pt-2">
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <span className="text-xs font-bold text-slate-200 block">Real-Time</span>
+                  <span className="text-[10px] text-slate-400">Budget Analytics</span>
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-200">Budget Cap Shield</h4>
-                <p className="text-[11px] text-slate-400">Over-spend protection</p>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 shrink-0">
+                  <Lock className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <span className="text-xs font-bold text-slate-200 block">Privacy Shield</span>
+                  <span className="text-[10px] text-slate-400">Blur Mode Toggle</span>
+                </div>
               </div>
             </div>
           </div>
@@ -232,10 +260,10 @@ export default function Login() {
       </main>
 
       {/* Feature Grid Section */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-16 border-t border-slate-800/60">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <span className="text-xs font-extrabold text-emerald-400 tracking-widest uppercase">Core Features</span>
-          <h2 className="text-3xl font-extrabold text-white">Built for Complete Financial Control</h2>
+      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 border-t border-slate-800/60">
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+          <span className="text-xs font-extrabold text-cyan-400 tracking-widest uppercase">Platform Capabilities</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Built for Complete Financial Control</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -250,7 +278,7 @@ export default function Login() {
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} p-3 text-white shadow-lg group-hover:scale-110 transition-transform`}>
                     <Icon className="w-full h-full" />
                   </div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">{feat.title}</h3>
+                  <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">{feat.title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed">{feat.description}</p>
                 </div>
               </div>
@@ -260,17 +288,17 @@ export default function Login() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full border-t border-slate-900 py-8 px-6 text-center text-xs text-slate-400">
+      <footer className="relative z-10 w-full border-t border-slate-900 py-6 px-6 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Logo className="w-6 h-6 shrink-0" />
+            <Logo className="w-5 h-5 shrink-0" />
             <span>&copy; {new Date().getFullYear()} Versetile Technologies Pvt Ltd. All rights reserved.</span>
           </div>
           <div className="flex gap-6 text-slate-400 font-medium">
-            <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+            <a href="https://versetile.in" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
               Versetile Main Site <ExternalLink className="h-3 w-3" />
             </a>
-            <a href="https://fin.versetile.in" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+            <a href="https://fin.versetile.in" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
               FinVerse App <ExternalLink className="h-3 w-3" />
             </a>
           </div>
