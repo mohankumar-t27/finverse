@@ -324,6 +324,45 @@ export default function Login() {
           })}
         </div>
       </section>
+
+      {/* SEO Promotional & FAQ Section */}
+      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 border-t border-slate-800/60">
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+          <span className="text-xs font-extrabold text-emerald-400 tracking-widest uppercase">Frequently Asked Questions</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Why FinVerse by Versetile?</h2>
+          <p className="text-sm text-slate-400">Everything you need to know about tracking personal expenses, setting budget caps, and cloud synchronization.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+            <h3 className="text-base font-bold text-cyan-300">How does FinVerse simplify monthly expense management?</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              FinVerse gives you an intuitive single-screen control center. You can define monthly category caps, log income and expense entries in seconds, and track spending progress with visual progress indicators and real-time distribution charts.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+            <h3 className="text-base font-bold text-emerald-300">Is my financial data secure on mobile and web?</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Yes! FinVerse is powered by Firebase Cloud Auth & Firestore Security Rules. Your budget entries and income logs are bound strictly to your authenticated Google account and stored with end-to-end cloud protection.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+            <h3 className="text-base font-bold text-sky-300">Can I clone or copy previous month budgets?</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Absolutely! FinVerse includes a one-click "Copy Previous Month's Budgets" feature. When starting a new month, you can replicate your target spending structure instantly without manually re-entering categories.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+            <h3 className="text-base font-bold text-amber-300">Is FinVerse free to use?</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              FinVerse is completely free to use as part of the Versetile Product Showcase ecosystem. Access your dashboard across desktop, mobile web, and tablets anytime at <a href="https://fin.versetile.in" className="text-cyan-400 underline font-mono">fin.versetile.in</a>.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
